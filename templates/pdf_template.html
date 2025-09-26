@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    h2 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f0f0f0; }
+    .header-logos {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px;
+    }
+    .header-logos img {
+      max-height: 50px;
+    }
+    .btn { display: none; } /* hide buttons in pdf */
+  </style>
+</head>
+<body>
+
+  <div class="header-logos">
+    <img src="{{ url_for('static', filename='LOGO.webp') }}" alt="Coca Cola">
+    <img src="{{ url_for('static', filename='LOGO.webp') }}" alt="SLMG Beverages">
+  </div>
+
+  <h2>Outlet Survey Details</h2>
+
+  <table>
+    <tr>
+      <th>Transaction ID</th><td>{{ data.TRANSACTIONS_ID }}</td>
+      <th>Status</th><td>{{ data.STATUS }}</td>
+    </tr>
+    <tr>
+      <th>Outlet Photo</th><td><img src="{{ url_for('static', filename='LOGO.webp') }}" alt="Outlet Photo" style="height:40px;"></td>
+    </tr>
+    <tr>
+      
+    </tr>
+    <!-- Add other rows similarly -->
+  </table>
+
+  <h3>SGA Details</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Working Conditions</th><th>Product Type</th><th>Serial No</th><th>Asset Tag No</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i, sga in enumerate(sga_details, 1) %}
+      <tr>
+        <td>{{ i }}</td>
+        <td>{{ sga.working_conditions or 'N/A' }}</td>
+        <td>{{ sga.product_type or 'N/A' }}</td>
+        <td>{{ sga.serial_no or 'N/A' }}</td>
+        <td>{{ sga.asset_tag_no or 'N/A' }}</td>
+        <td>{{ bail_id or 'N/A' }}</td>
+        <td>{{ IMAGE_UPLOAD_ASSEST_SERIAL_NO or 'N/A' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

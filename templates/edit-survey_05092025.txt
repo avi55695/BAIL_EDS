@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edit Outlet Survey</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styleedit.css') }}">
+</head>
+<body>
+<div class="form-container">
+    <h2>Edit Outlet Survey</h2>
+    <form method="POST" enctype="multipart/form-data">
+
+        <!-- Status -->
+        <label for="STATUS">Status</label>
+        <input type="text" id="STATUS" name="STATUS" value="{{ record['STATUS'] or '' }}" readonly/>
+
+        <!-- Outlet Code -->
+        <label for="OUTLET_CODE">Outlet Code</label>
+        <input type="text" id="OUTLET_CODE" name="OUTLET_CODE" value="{{ record['OUTLET_CODE'] or '' }}" />
+
+        <!-- Outlet Name -->
+        <label for="OUTLET_NAME">Outlet Name</label>
+        <input type="text" id="OUTLET_NAME" name="OUTLET_NAME" value="{{ record['OUTLET_NAME'] or '' }}" />
+
+        <!-- Employee Name -->
+        <label for="EMPLOYEE_NAME">Employee Name</label>
+        <input type="text" id="EMPLOYEE_NAME" name="EMPLOYEE_NAME" value="{{ record['EMPLOYEE_NAME'] or '' }}" />
+
+        <!-- Employee ID -->
+        <label for="EMPLOYEE_ID">Employee ID</label>
+        <input type="text" id="EMPLOYEE_ID" name="EMPLOYEE_ID" value="{{ record['EMPLOYEE_ID'] or '' }}" />
+
+        <!-- Mobile -->
+        <label for="MOBILE">Mobile</label>
+        <input type="text" id="MOBILE" name="MOBILE" value="{{ record['MOBILE'] or '' }}" />
+
+        <!-- City -->
+        <label for="CITY">City</label>
+        <input type="text" id="CITY" name="CITY" value="{{ record['CITY'] or '' }}" />
+
+        <!-- State -->
+        <label for="STATE">State</label>
+        <input type="text" id="STATE" name="STATE" value="{{ record['STATE'] or '' }}" />
+
+        <!-- Pincode -->
+        <label for="PINCODE">Pincode</label>
+        <input type="text" id="PINCODE" name="PINCODE" value="{{ record['PINCODE'] or '' }}" />
+
+        <!-- Outlet Address -->
+        <label for="OUTLET_ADDRESS">Outlet Address</label>
+        <textarea id="OUTLET_ADDRESS" name="OUTLET_ADDRESS">{{ record['OUTLET_ADDRESS'] or '' }}</textarea>
+
+        <!-- Latitude -->
+        <label for="LAT">Latitude</label>
+        <input type="text" id="LAT" name="LAT" value="{{ record['LAT'] or '' }}" readonly/> 
+
+        <!-- Longitude -->
+        <label for="LONG">Longitude</label>
+        <input type="text" id="LONG" name="LONG" value="{{ record['LONG'] or '' }}" readonly/>
+        <button type="button" onclick="getLocation()">Get Current Location</button>
+
+        <!-- GST Number -->
+        <label for="GSTNO">GST Number</label>
+        <input type="text" id="GSTNO" name="GSTNO" value="{{ record['GSTNO'] or '' }}" />
+
+        <!-- Distributor Code -->
+        <label for="DISTRIBUTOR_CODE">Distributor Code</label>
+        <input type="text" id="DISTRIBUTOR_CODE" name="DISTRIBUTOR_CODE" value="{{ record['DISTRIBUTOR_CODE'] or '' }}" />
+
+        <!-- Distributor Name -->
+        <label for="DISTRIBUTOR_NAME">Distributor Name</label>
+        <input type="text" id="DISTRIBUTOR_NAME" name="DISTRIBUTOR_NAME" value="{{ record['DISTRIBUTOR_NAME'] or '' }}" />
+
+        <!-- Channel -->
+        <label for="CHANNEL">Channel</label>
+        <input type="text" id="CHANNEL" name="CHANNEL" value="{{ record['CHANNEL'] or '' }}" />
+
+        <!-- Category -->
+        <label for="CATEGORY">Category</label>
+        <input type="text" id="CATEGORY" name="CATEGORY" value="{{ record['CATEGORY'] or '' }}" />
+
+        <!-- SGA -->
+        <label for="SGA">SGA</label>
+        <select id="SGA" name="SGA">
+            <option value="" {% if not record['SGA'] %}selected{% endif %}>-- Select SGA --</option>
+            <option value="Option1" {% if record['SGA'] == 'Option1' %}selected{% endif %}>1</option>
+            <option value="Option2" {% if record['SGA'] == 'Option2' %}selected{% endif %}>2</option>
+            <option value="Option3" {% if record['SGA'] == 'Option3' %}selected{% endif %}>3</option>
+            <option value="Option3" {% if record['SGA'] == 'Option3' %}selected{% endif %}>4</option>
+            <option value="Option3" {% if record['SGA'] == 'Option3' %}selected{% endif %}>5</option>
+            <option value="Option3" {% if record['SGA'] == 'Option3' %}selected{% endif %}>6</option>
+            <!-- Add more options as needed -->
+        </select>
+        <!-- SGA Working Conditions -->
+        <label for="SGA_WORKING_CONDITIONS">SGA Working Conditions</label>
+        <input type="text" id="SGA_WORKING_CONDITIONS" name="SGA_WORKING_CONDITIONS" value="{{ record['SGA_WORKING_CONDITIONS'] or '' }}" />
+
+        <!-- SGA Product Type -->
+        <label for="SGA_PRODUCT_TYPE">SGA Product Type</label>
+        <input type="text" id="SGA_PRODUCT_TYPE" name="SGA_PRODUCT_TYPE" value="{{ record['SGA_PRODUCT_TYPE'] or '' }}" />
+
+        <!-- Made -->
+        <label for="MADE">Made</label>
+        <input type="text" id="MADE" name="MADE" value="{{ record['MADE'] or '' }}" />
+
+        <!-- SGA Serial No -->
+        <label for="SGA_SERIAL_NO">SGA Serial No</label>
+        <input type="text" id="SGA_SERIAL_NO" name="SGA_SERIAL_NO" value="{{ record['SGA_SERIAL_NO'] or '' }}" />
+
+        <!-- SGA Asset Tag No -->
+        <label for="SGA_ASSEST_TAG_NO">SGA Asset Tag No</label>
+        <input type="text" id="SGA_ASSEST_TAG_NO" name="SGA_ASSEST_TAG_NO" value="{{ record['SGA_ASSEST_TAG_NO'] or '' }}" />
+
+        <!-- Email ID -->
+        <label for="EMAIL_ID">Email ID</label>
+        <input type="email" id="EMAIL_ID" name="EMAIL_ID" value="{{ record['EMAIL_ID'] or '' }}" />
+
+        <!-- Route No -->
+        <label for="ROUTE_NO">Route No</label>
+        <input type="text" id="ROUTE_NO" name="ROUTE_NO" value="{{ record['ROUTE_NO'] or '' }}" />
+
+        <!-- Image Upload Asset Serial No -->
+        <label for="IMAGE_UPLOAD_ASSEST_SERIAL_NO">Image Upload Asset Serial No</label>
+        <input type="text" id="IMAGE_UPLOAD_ASSEST_SERIAL_NO" name="IMAGE_UPLOAD_ASSEST_SERIAL_NO" value="{{ record['IMAGE_UPLOAD_ASSEST_SERIAL_NO'] or '' }}" />
+
+        <!-- Outlet Image -->
+        <label for="OUTLET_IMAGE">Outlet Image</label>
+        <input type="text" id="OUTLET_IMAGE" name="OUTLET_IMAGE" value="{{ record['OUTLET_IMAGE'] or '' }}" />
+
+        <!-- Hidden primary key -->
+        <input type="hidden" name="TRANSACTIONS_ID" value="{{ record['TRANSACTIONS_ID'] }}"/>
+
+        <br /><br />
+        <button type="submit">Update</button>
+        <a href="{{ url_for('outlet_survey') }}">Cancel</a>
+    </form>
+</div>
+
+<script>
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            document.getElementById("LAT").value = position.coords.latitude;
+            document.getElementById("LONG").value = position.coords.longitude;
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+</script>
+</body>
+</html>

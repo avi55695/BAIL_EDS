@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard</title>
+    <!-- CSS -->
+    <link href="{{ url_for('static', filename='admin_dashboard.css') }}" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container d-flex">
+        <aside class="sidebar">
+            <img src="{{ url_for('static', filename='LOGO.webp') }}" width="150" />
+            <div class="logo">DASHBOARD {{ user.EMP_NAME }}</div>
+            <nav class="menu d-flex flex-column">
+                <a href="{{ url_for('admin_dashboard') }}"><i class="bx bx-home"></i> Dashboard </a>
+                <a href="{{ url_for('add_employee') }}"><i class="bx bx-edit-alt"></i> Add Employee</a>
+                <a href="{{ url_for('employee_list') }}"><i class="bx bx-table"></i> Employee List</a>
+                <a href="{{ url_for('add_distributor') }}"><i class="bx bx-calendar"></i> Add Distributor</a>
+                <a href="{{ url_for('distributor_list') }}"><i class="bx bx-user"></i> Distributor List</a>
+                <a href="{{ url_for('add_outlet') }}"><i class="bx bx-calendar"></i> Add Outlet</a>
+                <a href="{{ url_for('outlet_list') }}"><i class="bx bx-user"></i> Outlet List</a>
+                <a href="{{ url_for('view_channels') }}"><i class="bx bx-user"></i> View Channels</a>
+
+                <div class="label mt-4 mb-2">Reports</div>
+                <a href="{{ url_for('complete_survey_report') }}"><i class="bx bx-edit-alt"></i> Updated Outlet Data
+                    Survey Report</a>
+                <a href="{{ url_for('total_outlet_complete') }}"><i class="bx bx-edit-alt"></i> All Outlet Complete
+                    Report</a>
+                <a href="{{ url_for('eds_new_survey_report') }}"><i class="bx bx-edit-alt"></i> Total New Outlet
+                    Complete Report</a>
+                <!-- <a href="{{ url_for('total_customer') }}"><i class="bx bx-edit-alt"></i> Total Customer</a> -->
+            </nav>
+        </aside>
+
+        <main class="main-content flex-grow-1 p-4">
+            <div class="outer-container">
+                <header class="topbar d-flex justify-content-between align-items-center mb-4">
+                    <input type="text" class="search-bar form-control w-50" placeholder="Enter keywords" />
+                    <div class="top-icons d-flex align-items-center gap-3">
+                        <i class="bx bx-envelope fs-4"></i>
+                        <i class="bx bx-flag fs-4"></i>
+                        <span class="username text-white">Admin</span>
+                        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+                    </div>
+                </header>
+
+                <section class="stats d-flex gap-3 mb-5">
+                    <div class="stat-box bg-primary text-white p-3 rounded flex-fill text-center">
+                        Total Outlet Complete <br /><span class="fs-3 fw-bold">{{ total_outlet_complete }}</span>
+                    </div>
+                    <div class="stat-box bg-success text-white p-3 rounded flex-fill text-center">
+                        Total Outlet Assigned <br /><span class="fs-3 fw-bold">{{ total_outlet_assigned }}</span>
+                    </div>
+                    <div class="stat-box bg-warning text-white p-3 rounded flex-fill text-center">
+                        Total Complete Survey <br /><span class="fs-3 fw-bold">{{ total_complete_survey }}</span>
+                    </div>
+                    <div class="stat-box bg-danger text-white p-3 rounded flex-fill text-center">
+                        Total Pending Survey <br /><span class="fs-3 fw-bold">{{ total_pending_survey }}</span>
+                    </div>
+                    <!-- <div class="stat-box bg-info text-white p-3 rounded flex-fill text-center">
+                        Total Customer <br /><span class="fs-3 fw-bold">{{ total_customer }}</span>
+                    </div> -->
+                    <div class="stat-box bg-secondary text-white p-3 rounded flex-fill text-center">
+                        Total New Survey <br /><span class="fs-3 fw-bold">{{ total_new_survey }}</span>
+                    </div>
+                </section>
+
+                <section class="charts d-flex gap-4 flex-wrap">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-6 chart-box traffic p-3 rounded text-white">
+                                <div class="outer-border">
+                                    <h5>Outlet Survey Summary</h5>
+                                    <canvas id="outletSurveyChart" height="100"></canvas>
+                                </div>
+                                
+                            </div>
+                            <div class="col-md-6 chart-box traffic p-3 rounded text-white">
+                                <div class="outer-border">
+                                    <h5>Outlet Survey Status</h5>
+                                    <canvas id="outletSurveyStatusChart" height="100"></canvas>
+                                    <ul class="sales-list list-unstyled mt-3">
+                                        <li>Total Outlet Assigned - {{ total_outlet_assigned }}</li>
+                                        <li>Total Complete Survey - {{ total_complete_survey }}</li>
+                                        <li>Total Pending Survey - {{ total_pending_survey }}</li>
+                                        <li>Total New Survey - {{ total_new_survey }}</li>
+                                    </ul>
+                                </div>
+                            
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ✅ Correctly define the JS arrays using Jinja2 and `tojson`
+        const outletData = {{ [total_outlet_assigned, total_complete_survey, total_pending_survey, total_new_survey] | tojson }};
+        const outletSalesData = {{ [total_outlet_assigned, total_complete_survey, total_pending_survey, total_new_survey] | tojson }};
+
+        // 📊 Bar Chart: Outlet Survey Summary
+        const ctx = document.getElementById('outletSurveyChart').getContext('2d');
+        const outletSurveyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Outlet Assigned', 'Total Complete Survey', 'Total Pending Survey', 'Total New Survey'],
+                datasets: [{
+                    label: 'Count',
+                    data: outletData,
+                    backgroundColor: [
+                        '#4e73df',
+                        '#1cc88a',
+                        '#e74a3b',
+                        '#f6c23e'
+                    ],
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#fff' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#fff' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                }
+            }
+        });
+
+        // 🍩 Doughnut Chart: Outlet Survey Status
+        const ctxSales = document.getElementById('outletSurveyStatusChart').getContext('2d');
+        const weeklySalesChart = new Chart(ctxSales, {
+            type: 'doughnut',
+            data: {
+                labels: ['Total Outlet Assigned', 'Total Complete Survey', 'Total Pending Survey', 'Total New Survey'],
+                datasets: [{
+                    data: outletSalesData,
+                    backgroundColor: [
+                        '#4e73df',
+                        '#1cc88a',
+                        '#36b9cc',
+                        '#f6c23e',
+                        '#858796'
+                    ],
+                    hoverOffset: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#fff' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

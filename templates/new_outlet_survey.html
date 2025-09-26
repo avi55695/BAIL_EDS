@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Outlet Survey</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styleedit.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+		integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- <img src="{{ url_for('static', filename='LOGO.webp') }}" alt="EDS Logo" style="max-height: 80px;" /> -->
+</head>
+<body>
+
+    
+	<div class="dashboard">
+		<!-- Sidebar -->
+		<aside class="sidebar" id="sidebar">
+			<button id="closeBtn" aria-label="Close Menu">&times;</button>
+			<img src="{{ url_for('static', filename='slmg-logo-white.png') }}" alt="SLMG Logo" title="SLMG"
+				style="width:100%;" />
+			<a href="{{ url_for('user_dashboard') }}">Dashboard</a>
+			<a class="active" href="{{ url_for('outlet_survey') }}">Outlet Survey</a>
+			<a href="{{ url_for('complete_survey') }}">All Completed</a>
+			<a href="{{ url_for('new_complete_outlet') }}">New Complete Outlet List</a>
+			<a href="{{ url_for('logout') }}">Logout</a>
+			<div class="side-footer-img">
+				<img src="{{ url_for('static', filename='bottle-logo.webp') }}" alt="SLMG Logo" title="SLMG" />
+			</div>
+		</aside>
+
+
+		<!-- Overlay -->
+		<div class="overlay" id="overlay"></div>
+		<section class="outer-container">
+			<!-- Main Content -->
+			<main class="main-content">
+				<!-- Topbar -->
+				<header class="topbar">
+					<!-- Welcome Banner -->
+					<div class="content">
+						<h1>Welcome</h1>
+						<p>Glad to see you again!</p>
+					</div>
+					<!-- Hamburger Icon -->
+					<div class="hamburger" id="hamburger" aria-label="Open Menu" role="button" tabindex="0">
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+
+				</header>
+
+				{% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert alert-info" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <div class="form-container">
+                    <h2>New Outlet Survey</h2>
+                    <form method="POST" enctype="multipart/form-data" id="outletSurveyForm">
+                        <!-- Basic Fields -->
+                        <label for="OUTLET_NAME" class="required">Outlet Name</label>
+                        <input type="text" id="OUTLET_NAME" name="OUTLET_NAME" required />
+
+                        <label for="OUTLET_MOBILE"  class="required">Outlet Mobile</label>
+                        <input type="text" id="OUTLET_MOBILE" name="OUTLET_MOBILE" pattern="\d{10}" title="10 digit mobile number" required />
+
+                        <label for="CITY" class="required">City</label>
+                        <input type="text" id="CITY" name="CITY" required />
+
+                        <label for="STATE" class="required">State</label>
+                        <input type="text" id="STATE" name="STATE" required />
+
+                        <label for="PINCODE" class="required">Pincode</label>
+                        <input type="text" id="PINCODE" name="PINCODE" pattern="\d{6}" title="6 digit pincode" required />
+
+                        <label for="OUTLET_ADDRESS" class="required">Outlet Address</label>
+                        <textarea id="OUTLET_ADDRESS" name="OUTLET_ADDRESS" required></textarea>
+
+                        <label for="LAT" class="required">Latitude</label>
+                        <input type="text" id="LAT" name="LAT" readonly />
+
+                        <label for="LONG" class="required">Longitude</label>
+                        <input type="text" id="LONG" name="LONG" readonly />
+                        <button type="button" onclick="getLocation()" class="btn-loc"> <i class="fa fa-map-marker" aria-hidden="true"></i> Get Current Location</button>
+
+                        <!-- Distributor -->
+                        <label for="DISTRIBUTOR_NAME" class="required">Distributor Name</label>
+                        <select id="DISTRIBUTOR_NAME" name="DISTRIBUTOR_NAME" required >
+                            <option value="">Select Distributor</option>
+                            {% for dist in distributors %}
+                                <option value="{{ dist[0] }}" data-code="{{ dist[1] }}">{{ dist[0] }}-{{ dist[1] }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="DISTRIBUTOR_CODE" class="required">Distributor Code</label>
+                        <input type="text" id="DISTRIBUTOR_CODE" name="DISTRIBUTOR_CODE" readonly />
+
+                        <!-- Channel -->
+                        <label for="CHANNEL" class="required">Channel</label>
+                        <select name="CHANNEL" id="CHANNEL" required >
+                            <option value="">Select Channel</option>
+                            {% for ch in channels %}
+                                <option value="{{ ch }}" {% if current_channel == ch %}selected{% endif %}>{{ ch }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- Volume & VPO -->
+                        <label for="VOLUME" class="required">Volume</label>
+                        <select id="VOLUME" name="VOLUME" onchange="updateVPOFromVolume()" required >
+                            <option value="">-- Select VOLUME --</option>
+                            <option value="(1-199)">(1-199)</option>
+                            <option value="(200-499)">(200-499)</option>
+                            <option value="(500-899)">(500-899)</option>
+                            <option value="(900+)">(900+)</option>
+                        </select>
+
+                        <label for="VPO" class="required">VPO</label>
+                        <input type="text" id="VPO" name="VPO" readonly />
+
+                        <!-- SGA Section -->
+                        <label for="SGA" class="required">SGA</label>
+                        <select id="SGA" name="SGA">
+                            <option value="">-- Select SGA --</option>
+                            <option value="YES">YES</option>
+                            <option value="NO">NO</option>
+                        </select>
+                        <!--SGA COUNT-->
+                        <label for="SGA_COUNT">SGA Count</label>
+                        <select id="SGA_COUNT" name="SGA_COUNT" onchange="renderSGAFields()">
+                            {% for i in range(6) %}
+                                <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <div id="sgaFieldsContainer"></div>
+
+                        <!-- Image Upload -->
+                        <label for="OUTLET_IMAGE" class="required">Upload Outlet Image:</label>
+                        <input type="file" name="OUTLET_IMAGE" accept="image/*" capture="environment" required />
+
+                        <br /><br />
+                        <button type="submit" class="btn-submit">Submit</button>
+                        <a href="{{ url_for('outlet_survey') }}">Cancel</a>
+                    </form>
+                </div>
+
+
+			</main>
+		</section>
+	</div>
+
+    
+<script>
+    const sgaTypes = JSON.parse('{{ sga_types | tojson | safe }}');
+
+    function renderSGAFields() {
+        const count = parseInt(document.getElementById('SGA_COUNT').value);
+        const container = document.getElementById('sgaFieldsContainer');
+        container.innerHTML = '';
+
+        if (isNaN(count) || count <= 0) return;
+
+        for (let i = 1; i <= count; i++) {
+            const block = document.createElement('div');
+            block.classList.add('sga-block');
+            block.style.marginTop = '10px';
+            block.style.padding = '10px';
+            block.style.border = '1px solid #ccc';
+
+            block.innerHTML = `
+                <strong>SGA ${i}</strong><br>
+                <label>Working Conditions:</label>
+                <select name="SGA_WORKING_CONDITIONS_${i}">
+                    <option value="">-- Select Working Condition --</option>
+                    <option value="1">OLD</option>
+                    <option value="2">NEW</option>
+                </select><br>
+
+                <label>SGA Type:</label>
+                <select name="SGA_PRODUCT_TYPE_${i}">
+                    <option value="">-- Select SGA Type --</option>
+                    ${sgaTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+                </select><br>
+
+                <label>Serial No:</label>
+                <input type="text" name="SGA_SERIAL_NO_${i}"><br>
+
+                <label>Asset Tag No:</label>
+                <input type="text" name="SGA_ASSEST_TAG_NO_${i}"><br>
+
+                <label>BAIL ID:</label>
+                <input type="text" name="BAIL_ID_${i}"><br>
+
+                <label>Asset Image:</label>
+                <input type="file" name="IMAGE_UPLOAD_ASSEST_SERIAL_NO_${i}" accept="image/*" capture="environment"><br>
+            `;
+            container.appendChild(block);
+        }
+    }
+
+    function toggleSGACount() {
+        const sgaSelect = document.getElementById('SGA');
+        const sgaCountSelect = document.getElementById('SGA_COUNT');
+        const container = document.getElementById('sgaFieldsContainer');
+
+        if (sgaSelect.value === 'YES') {
+            sgaCountSelect.disabled = false;
+        } else {
+            sgaCountSelect.disabled = true;
+            sgaCountSelect.value = "0";
+            container.innerHTML = '';
+        }
+    }
+
+    function updateVPOFromVolume() {
+        const volume = document.getElementById('VOLUME').value;
+        const vpo = document.getElementById('VPO');
+        switch(volume) {
+            case '(1-199)': vpo.value = 'BRONZE'; break;
+            case '(200-499)': vpo.value = 'SILVER'; break;
+            case '(500-899)': vpo.value = 'GOLD'; break;
+            case '(900+)': vpo.value = 'PLATINUM'; break;
+            default: vpo.value = ''; break;
+        }
+    }
+
+    function getLocation() {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by this browser.');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const long = position.coords.longitude.toFixed(6);
+                document.getElementById('LAT').value = lat;
+                document.getElementById('LONG').value = long;
+            },
+            function (error) {
+                console.error('Error getting location:', error);
+                alert('Error getting location: ' + error.message);
+            }
+        );
+    }
+
+document.getElementById('outletSurveyForm').addEventListener('submit', function (e) {
+    const requiredFields = [
+        { id: 'OUTLET_NAME', label: 'Outlet Name' },
+        { id: 'OUTLET_MOBILE', label: 'Outlet Mobile', pattern: /^\d{10}$/, patternMsg: 'Enter a valid 10-digit mobile number.' },
+        { id: 'CITY', label: 'City' },
+        { id: 'STATE', label: 'State' },
+        { id: 'PINCODE', label: 'Pincode', pattern: /^\d{6}$/, patternMsg: 'Enter a valid 6-digit pincode.' },
+        { id: 'OUTLET_ADDRESS', label: 'Outlet Address' },
+        { id: 'DISTRIBUTOR_NAME', label: 'Distributor Name' },
+        { id: 'DISTRIBUTOR_CODE', label: 'Distributor Code' },
+        { id: 'CHANNEL', label: 'Channel' },
+        { id: 'VOLUME', label: 'Volume' },
+        { id: 'VPO', label: 'VPO' }
+    ];
+
+    // Loop through all required fields
+    for (let field of requiredFields) {
+        const input = document.getElementById(field.id);
+        if (!input) continue;
+
+        const value = input.value.trim();
+        if (value === '') {
+            alert(`Please fill in the ${field.label}.`);
+            input.focus();
+            e.preventDefault();
+            return false;
+        }
+
+        if (field.pattern && !field.pattern.test(value)) {
+            alert(field.patternMsg || `Invalid ${field.label}.`);
+            input.focus();
+            e.preventDefault();
+            return false;
+        }
+    }
+
+    // Validate Latitude and Longitude
+    const latInput = document.getElementById('LAT');
+    const longInput = document.getElementById('LONG');
+    const lat = parseFloat(latInput.value);
+    const long = parseFloat(longInput.value);
+
+    if (!latInput.value || isNaN(lat) || lat === 0) {
+        alert("Latitude is missing or invalid (should not be 0). Please use 'Get Current Location'.");
+        latInput.focus();
+        e.preventDefault();
+        return false;
+    }
+
+    if (!longInput.value || isNaN(long) || long === 0) {
+        alert("Longitude is missing or invalid (should not be 0). Please use 'Get Current Location'.");
+        longInput.focus();
+        e.preventDefault();
+        return false;
+    }
+
+    return true; // ✅ All validations passed
+});
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateVPOFromVolume();
+        toggleSGACount();
+
+        // Auto-uppercase inputs
+        const inputs = document.querySelectorAll('input[type="text"], textarea');
+        inputs.forEach(input => {
+            input.style.textTransform = "uppercase";
+            input.addEventListener('input', function () {
+                this.value = this.value.toUpperCase();
+            });
+        });
+
+        // Distributor name change event - sets distributor code
+        const distributorSelect = document.getElementById('DISTRIBUTOR_NAME');
+        const distributorCodeInput = document.getElementById('DISTRIBUTOR_CODE');
+
+        if (distributorSelect && distributorCodeInput) {
+            distributorSelect.addEventListener('change', function () {
+                const selectedOption = this.options[this.selectedIndex];
+                const distCode = selectedOption.getAttribute('data-code') || '';
+                distributorCodeInput.value = distCode;
+            });
+        }
+
+        // SGA change event
+        document.getElementById('SGA').addEventListener('change', toggleSGACount);
+
+        // SGA Count change event
+        document.getElementById('SGA_COUNT').addEventListener('change', renderSGAFields);
+    });
+</script>
+
+<script>
+    // Compress image before form submit
+    document.getElementById('outletSurveyForm').addEventListener('submit', async function (e) {
+        e.preventDefault(); // Stop form temporarily
+        const form = this;
+
+        const fileInputs = form.querySelectorAll('input[type="file"]');
+        const compressedFiles = {};
+
+        for (const input of fileInputs) {
+            const file = input.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const compressed = await compressImage(file, 800, 0.6); // maxWidth: 800px, quality: 60%
+                const blobFile = new File([compressed], file.name, { type: 'image/jpeg' });
+                
+                // Replace the original input with new file using DataTransfer
+                const dt = new DataTransfer();
+                dt.items.add(blobFile);
+                input.files = dt.files;
+            }
+        }
+
+        form.submit(); // Now actually submit the form
+    });
+
+    // Compress image using canvas
+    function compressImage(file, maxWidth = 600, quality = 0.5) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    const scale = maxWidth / img.width;
+                    const width = Math.min(maxWidth, img.width);
+                    const height = img.height * scale;
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (blob) resolve(blob);
+                        else reject(new Error('Compression failed.'));
+                    }, 'image/jpeg', quality);
+                };
+            };
+
+            reader.onerror = (error) => reject(error);
+        });
+    }
+</script>
+
+	<script>
+		const hamburger = document.getElementById('hamburger');
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('overlay');
+		const closeBtn = document.getElementById('closeBtn');
+
+		function openSidebar() {
+			sidebar.classList.add('show');
+			overlay.classList.add('show');
+		}
+
+		function closeSidebar() {
+			sidebar.classList.remove('show');
+			overlay.classList.remove('show');
+		}
+
+		hamburger.addEventListener('click', openSidebar);
+		closeBtn.addEventListener('click', closeSidebar);
+		overlay.addEventListener('click', closeSidebar);
+
+		// Keyboard accessibility for hamburger
+		hamburger.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				openSidebar();
+			}
+		});
+
+		// Keyboard accessibility for close button
+		closeBtn.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				closeSidebar();
+			}
+		});
+	</script>
+</body>
+</html>

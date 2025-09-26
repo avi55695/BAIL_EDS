@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>View Outlet Survey - {{ data.OUTLET_NAME }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .btn-map {
+            white-space: nowrap;
+        }
+        .header-buttons {
+            margin-bottom: 1rem;
+        }
+        .header-buttons .btn {
+            margin-right: 0.5rem;
+        }
+        img.photo {
+            max-width: 120px;
+            height: auto;
+            border-radius: 4px;
+        }
+        .sga-section {
+            margin-top: 1rem;
+        }
+        .sga-table th, .sga-table td {
+            text-align: center;
+        }
+        header{text-align: center;}
+         header img{padding: 15px;width: 300px;}
+    </style>
+</head>
+<body>
+    <header><img src="{{ url_for('static', filename='LOGO.webp') }}" /></header>
+    <h1 class="text-center">Outlet Survey Details</h1>
+<div class="container my-4">
+
+    <div class="d-flex justify-content-between header-buttons">
+        <a href="{{ url_for('complete_survey') }}" class="btn btn-warning">Back to Complete Survey</a>
+        <button onclick="window.print()" class="btn btn-primary">Print</button>
+    </div>
+
+    <table class="table table-bordered">
+        <tbody>
+            <tr>
+                <th>Transaction ID</th>
+                <td>{{ data.TRANSACTIONS_ID }}</td>
+                <th>Status</th>
+                <td>{{ data.STATUS or 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Outlet Code</th>
+                <td>{{ data.OUTLET_CODE }}</td>
+                <th>Outlet Photo</th>
+                <td>
+                    {% if data.OUTLET_IMAGE %}
+                        <img src="{{ url_for('static', filename='uploads/' + data.OUTLET_IMAGE) }}" alt="Outlet Photo" class="photo" />
+                    {% else %}
+                        No photo
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Outlet Name</th>
+                <td>{{ data.OUTLET_NAME }}</td>
+                <th>Outlet Mobile</th>
+                <td>{{ data.OUTLET_MOBILE }}</td>
+            </tr>
+            <tr>
+                <th>City</th>
+                <td>{{ data.CITY }}</td>
+                <th>State</th>
+                <td>{{ data.STATE }}</td>
+            </tr>
+            <tr>
+                <th>Pincode</th>
+                <td>{{ data.PINCODE }}</td>
+                <th>Outlet Address</th>
+                <td>{{ data.OUTLET_ADDRESS }}</td>
+            </tr>
+            <tr>
+                <th>Latitude</th>
+                <td>{{ data.LAT }}</td>
+                <th>Longitude</th>
+                <td>
+                    {{ data.LONG }}
+                    {% if data.LAT and data.LONG %}
+                        <a href="https://www.google.com/maps?q={{ data.LAT }},{{ data.LONG }}" target="_blank" class="btn btn-sm btn-primary btn-map">View On MAP</a>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>VPO</th>
+                <td>{{ data.VPO or 'N/A' }}</td>
+                <th>Distributor Code</th>
+                <td>{{ data.DISTRIBUTOR_CODE }}</td>
+            </tr>
+            <tr>
+                <th>Distributor Name</th>
+                <td>{{ data.DISTRIBUTOR_NAME }}</td>
+                <th>Channel</th>
+                <td>{{ data.CHANNEL }}</td>
+            </tr>
+            <tr>
+                <th>Volume</th>
+                <td>{{ data.VOLUME or 'N/A' }}</td>
+                <th>SGA</th>
+                <td>{{ data.SGA or 'No' }}</td>
+            </tr>
+            <tr>
+            </td>
+            </tr>
+            <tr>
+                <th>Email ID</th>
+                <td>{{ data.EMAIL_ID or 'N/A' }}</td>
+                <th>Created At</th>
+                <td>{{ data.CREATED_AT }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SGA Details Table -->
+    <!-- SGA Details Table -->
+<div class="sga-section">
+    <h5>SGA Details</h5>
+    <table class="table table-bordered sga-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Working Conditions</th>
+                <th>Product Type</th>
+                <th>Serial No</th>
+                <th>Asset Tag No</th>
+                <th>BAIL ID</th>
+                <th>Image (Asset Serial No)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(1,6) %}
+            <tr>
+                <td>{{ i }}</td>
+                <td>{{ data['SGA_WORKING_CONDITIONS_' ~ i|string] or 'N/A' }}</td>
+                <td>{{ data['SGA_PRODUCT_TYPE_' ~ i|string] or 'N/A' }}</td>
+                <td>{{ data['SGA_SERIAL_NO_' ~ i|string] or 'N/A' }}</td>
+                <td>{{ data['SGA_ASSEST_TAG_NO_' ~ i|string] or 'N/A' }}</td>
+                <td>{{ data['BAIL_ID_' ~ i|string] or 'N/A' }}</td>
+                <td>
+                    {% if data['IMAGE_UPLOAD_ASSEST_SERIAL_NO_' ~ i|string] %}
+                        <img src="{{ url_for('static', filename='uploads/' + data['IMAGE_UPLOAD_ASSEST_SERIAL_NO_' ~ i|string]) }}" 
+                             alt="Asset Serial No Image" class="photo" />
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

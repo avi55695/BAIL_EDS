@@ -1,0 +1,579 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Outlet Survey</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styleedit.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+		integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+
+        
+	<div class="dashboard">
+		<!-- Sidebar -->
+		<aside class="sidebar" id="sidebar">
+			<button id="closeBtn" aria-label="Close Menu">&times;</button>
+			<img src="{{ url_for('static', filename='slmg-logo-white.png') }}" alt="SLMG Logo" title="SLMG"
+				style="width:100%;" />
+			<a href="{{ url_for('user_dashboard') }}">Dashboard</a>
+			<a class="active" href="{{ url_for('outlet_survey') }}">Outlet Survey</a>
+			<a href="{{ url_for('complete_survey') }}">All Completed</a>
+			<a href="{{ url_for('new_complete_outlet') }}">New Complete Outlet List</a>
+			<a href="{{ url_for('logout') }}">Logout</a>
+			<div class="side-footer-img">
+				<img src="{{ url_for('static', filename='bottle-logo.webp') }}" alt="SLMG Logo" title="SLMG" />
+			</div>
+		</aside>
+
+
+		<!-- Overlay -->
+		<div class="overlay" id="overlay"></div>
+		<section class="outer-container">
+			<!-- Main Content -->
+			<main class="main-content">
+				<!-- Topbar -->
+				<header class="topbar">
+					<!-- Welcome Banner -->
+					<div class="content">
+						<h1>Welcome</h1>
+						<p>Glad to see you again!</p>
+					</div>
+					<!-- Hamburger Icon -->
+					<div class="hamburger" id="hamburger" aria-label="Open Menu" role="button" tabindex="0">
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+
+				</header>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert alert-info" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <div class="form-container">
+                    <h2>Edit Outlet Survey</h2>
+                    <form method="POST" enctype="multipart/form-data" id="outletSurveyForm">
+
+                        <!-- TRANSACTIONS ID -->
+                        <label for="TRANSACTIONS_ID">TRANSACTIONS ID</label>
+                        <input type="text" id="TRANSACTIONS_ID" readonly name="TRANSACTIONS_ID" value="{{ record.get('TRANSACTIONS_ID', '') }}" />
+
+                        <!-- Email ID -->
+                        <label for="EMAIL_ID">Email ID</label>
+                        <input type="text" id="EMAIL_ID" name="EMAIL_ID" value="{{ record.get('EMAIL_ID', '') }}" readonly/>
+
+                        <!-- Status -->
+                        <label for="STATUS">Status</label>
+                        <input type="text" id="STATUS" name="STATUS" value="{{ record.get('STATUS', '') }}" readonly/>
+
+                        <!-- Outlet Code -->
+                        <label for="OUTLET_CODE">Outlet Code</label>
+                        <input type="text" id="OUTLET_CODE" readonly required name="OUTLET_CODE" value="{{ record.get('OUTLET_CODE', '') }}" required />
+
+                        <!-- Outlet Name -->
+                        <label for="OUTLET_NAME" class="required">Outlet Name</label>
+                        <input type="text" id="OUTLET_NAME" name="OUTLET_NAME" value="{{ record.get('OUTLET_NAME', '') }}" required />
+
+                        <!-- Mobile -->
+                        <label for="OUTLET_MOBILE" class="required">Outlet Mobile</label>
+                        <input type="text" id="OUTLET_MOBILE" name="OUTLET_MOBILE" 
+                        value="{{ record.get('OUTLET_MOBILE', '') }}" 
+                        required pattern="\d{10}" 
+                        title="Please enter a valid 10-digit mobile number" />
+
+
+                        <!-- City -->
+                        <label for="CITY" class="required">City</label>
+                        <input type="text" id="CITY" name="CITY" value="{{ record.get('CITY', '') }}" required />
+
+                        <!-- State -->
+                        <label for="STATE" class="required">State</label>
+                        <input type="text" id="STATE" name="STATE" value="{{ record.get('STATE', '') }}" required />
+
+                        <!-- Pincode -->
+                        <label for="PINCODE" class="required">Pincode</label>
+                        <input type="text" id="PINCODE" name="PINCODE" value="{{ record.get('PINCODE', '') }}" required />
+
+                        <!-- Outlet Address -->
+                        <label for="OUTLET_ADDRESS" class="required">Outlet Address</label>
+                        <textarea id="OUTLET_ADDRESS" name="OUTLET_ADDRESS">{{ record.get('OUTLET_ADDRESS', '' ) }}</textarea>
+
+                        <!-- Latitude -->
+                        <label for="LAT" class="required">Latitude</label>
+                        <input type="text" id="LAT" name="LAT" value="{{ record.get('LAT', '') }}" readonly required />
+
+                        <!-- Longitude -->
+                        <label for="LONG" class="required">Longitude</label>
+                        <input type="text" id="LONG" name="LONG" value="{{ record.get('LONG', '') }}" readonly required />
+                        <button type="button" onclick="getLocation()" class="btn-loc"> <i class="fa fa-map-marker" aria-hidden="true"></i> Get Current Location</button>
+
+                        <!-- Distributor Code -->
+                        <label for="DISTRIBUTOR_CODE" class="required">Distributor Code</label>
+                        <input type="text" id="DISTRIBUTOR_CODE" name="DISTRIBUTOR_CODE" value="{{ record.get('DISTRIBUTOR_CODE', '') }}" readonly>
+
+                        <!-- Distributor Name -->
+                        <label for="DISTRIBUTOR_NAME" class="required">Distributor Name</label>
+                        <input type="text" id="DISTRIBUTOR_NAME" name="DISTRIBUTOR_NAME" value="{{ record.get('DISTRIBUTOR_NAME', '') }}" readonly>
+
+                        <!-- Channel -->
+                        <label for="CHANNEL" class="required">Channel</label>
+                        <select name="CHANNEL" id="channel" name="channel" value="{{ record.get('CHANNEL', '') }}" required >
+                        <option value="">Select Channel</option>
+
+                        {% set current_channel = record.get('CHANNEL') %}
+                        {% if current_channel and current_channel not in channels %}
+                            <option value="{{ current_channel }}" selected>{{ current_channel }}</option>
+                        {% endif %}
+
+                        {% for ch in channels %}
+                            <option value="{{ ch }}" {% if current_channel == ch %}selected{% endif %}>{{ ch }}</option>
+                        {% endfor %}
+                    </select>
+                        <!-- VOLUME -->
+                        <label for="VOLUME" class="required">Volume</label>
+                        <select id="VOLUME" name="VOLUME" onchange="updateVPOFromVolume()" required>
+                            <option value="" {% if record.get('VOLUME', '') == '' %}selected{% endif %}>-- Select VOLUME --</option>
+                            <option value="(1-199)" {% if record.get('VOLUME', '') == '(1-199)' %}selected{% endif %}>(1-199)</option>
+                            <option value="(200-499)" {% if record.get('VOLUME', '') == '(200-499)' %}selected{% endif %}>(200-499)</option>
+                            <option value="(500-899)" {% if record.get('VOLUME', '') == '(500-899)' %}selected{% endif %}>(500-899)</option>
+                            <option value="(900+)" {% if record.get('VOLUME', '') == '(900+)' %}selected{% endif %}>(900+)</option>
+                        </select>
+
+                        <!-- VPO -->
+                        <label for="VPO" class="required">VPO</label>
+                        <input type="text" id="VPO" name="VPO" value="{{ record.get('VPO', '') }}" readonly>
+
+                        <!-- SGA -->
+                        <label for="SGA" class="required">SGA</label>
+                        <select id="SGA" name="SGA" onchange="toggleSGACount()" required>
+                            <option value="" {% if record.get('SGA', '') == '' %}selected{% endif %}>-- Select SGA --</option>
+                            <option value="YES" {% if record.get('SGA', '') == 'YES' %}selected{% endif %}>YES</option>
+                            <option value="NO" {% if record.get('SGA', '') == 'NO' %}selected{% endif %}>NO</option>
+                        </select>
+
+                        <!-- SGA Count -->
+                        <label for="SGA_COUNT">SGA Count</label>
+                        <select id="SGA_COUNT" name="SGA_COUNT" onchange="renderSGAFields()">
+                            {% for i in range(6) %}
+                                <option value="{{ i }}" {% if record.get('SGA_COUNT', None) == i %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- Dynamic SGA Inputs Container -->
+                        <div id="sgaFieldsContainer">
+                            {% for i in range(1, record.get('SGA_COUNT', 0)|int + 1) %}
+                                <div class="sga-block" style="margin-top: 10px; padding: 10px; border: 1px solid #ccc;">
+                                    <strong>SGA {{ i }}</strong><br>
+
+                                    <label>Working Conditions:</label>
+                                    <select name="SGA_WORKING_CONDITIONS_{{ i }}">
+                                        <option value="">-- Select Working Condition --</option>
+                                        <option value="1" {% if record.get('SGA_WORKING_CONDITIONS_' ~ i, '') == '1' %}selected{% endif %}>NON-WORKING</option>
+                                        <option value="2" {% if record.get('SGA_WORKING_CONDITIONS_' ~ i, '') == '2' %}selected{% endif %}>WORKING</option>
+                                    </select><br>
+
+                                    <label>SGA Type:</label>
+                                    <select name="SGA_PRODUCT_TYPE_{{ i }}">
+                                        <option value="">-- Select SGA Type --</option>
+                                        {% for sga_type in sga_types %}
+                                            <option value="{{ sga_type }}" {% if record.get('SGA_PRODUCT_TYPE_' ~ i, '') == sga_type %}selected{% endif %}>{{ sga_type }}</option>
+                                        {% endfor %}
+                                    </select><br>
+
+                                    <label>Serial No:</label>
+                                    <input type="text" name="SGA_SERIAL_NO_{{ i }}" value="{{ record.get('SGA_SERIAL_NO_' ~ i, '') }}"><br>
+
+                                    <label>Asset Tag No:</label>
+                                    <input type="text" name="SGA_ASSEST_TAG_NO_{{ i }}" value="{{ record.get('SGA_ASSEST_TAG_NO_' ~ i, '') }}"><br>
+
+                                    <label>BAIL ID:</label>
+                                    <input type="text" name="BAIL_ID_{{ i }}" value="{{ record.get('BAIL_ID_' ~ i, '') }}"><br>
+
+                                    <label>Asset Image:</label>
+                                    <input type="file" name="IMAGE_UPLOAD_ASSEST_SERIAL_NO_{{ i }}" accept="image/*" capture="environment"> <br>
+
+                                    {% if record.get('IMAGE_UPLOAD_ASSEST_SERIAL_NO_' ~ i) %}
+                                        <img src="{{ url_for('static', filename='uploads/' + record['IMAGE_UPLOAD_ASSEST_SERIAL_NO_' ~ i]) }}" style="max-height: 100px; margin-top: 5px;">
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Upload Outlet Image -->
+                        <div class="form-group">
+                            <label for="OUTLET_IMAGE" class="required">Upload Outlet Image:</label>
+                            <input type="file" name="OUTLET_IMAGE" accept="image/*" class="form-control" capture="environment" required  />
+                            {% if record.get('OUTLET_IMAGE') %}
+                                <img src="{{ url_for('static', filename='uploads/' + record['OUTLET_IMAGE']) }}" alt="" style="max-height: 150px;" />
+                            {% endif %}
+                        </div>
+
+                        <!-- Hidden primary key (only one needed) -->
+                        <input type="hidden" name="TRANSACTIONS_ID" value="{{ record.get('TRANSACTIONS_ID', '') }}"/>
+
+                        <br /><br />
+                        <button type="submit" class="btn-submit">Update</button>
+                        <a href="{{ url_for('outlet_survey') }}">Cancel</a>
+                    </form>
+                </div>
+				
+			</main>
+		</section>
+	</div>
+
+    <script>
+document.getElementById('outletSurveyForm').addEventListener('submit', function (e) {
+        const mobileInput = document.getElementById('OUTLET_MOBILE');
+        const mobileValue = mobileInput.value.trim();
+
+        // Check if mobile number is empty or invalid
+        if (mobileValue === '') {
+            alert('Please enter the Outlet Mobile number.');
+            mobileInput.focus();
+            e.preventDefault(); // Stop form submission
+            return false;
+        }
+
+        // Optional: Validate mobile number format (10 digits)
+        const mobilePattern = /^\d{10}$/;
+        if (!mobilePattern.test(mobileValue)) {
+            alert('Please enter a valid 10-digit mobile number.');
+            mobileInput.focus();
+            e.preventDefault(); // Stop form submission
+            return false;
+        }
+    });
+
+        // Parse SGA types passed from Flask
+        const sgaTypes = JSON.parse('{{ sga_types | tojson | safe }}');
+
+        // Render SGA fields dynamically based on count selection
+        function renderSGAFields() {
+            const count = parseInt(document.getElementById('SGA_COUNT').value);
+            const container = document.getElementById('sgaFieldsContainer');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= count; i++) {
+                const block = document.createElement('div');
+                block.classList.add('sga-block');
+                block.style.marginTop = '10px';
+                block.style.padding = '10px';
+                block.style.border = '1px solid #ccc';
+
+                block.innerHTML = `
+                    <strong>SGA ${i}</strong><br>
+
+                    <label>Working Conditions:</label>
+                    <select name="SGA_WORKING_CONDITIONS_${i}">
+                        <option value="">-- Select Working Condition --</option>
+                        <option value="1">OLD</option>
+                        <option value="2">NEW</option>
+                    </select><br>
+
+                    <label>SGA Type:</label>
+                    <select name="SGA_PRODUCT_TYPE_${i}">
+                        <option value="">-- Select SGA Type --</option>
+                        ${sgaTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+                    </select><br>
+
+                    <label>Serial No:</label>
+                    <input type="text" name="SGA_SERIAL_NO_${i}"><br>
+
+                    <label>Asset Tag No:</label>
+                    <input type="text" name="SGA_ASSEST_TAG_NO_${i}"><br>
+
+                    <label>BAIL ID:</label>
+                    <input type="text" name="BAIL_ID_${i}"><br>
+
+                    <label>Asset Image:</label>
+                    <input type="file" name="IMAGE_UPLOAD_ASSEST_SERIAL_NO_${i}" accept="image/*"><br>
+                `;
+
+                container.appendChild(block);
+            }
+        }
+
+
+document.getElementById('outletSurveyForm').addEventListener('submit', function (e) {
+    const requiredFields = [
+        { id: 'OUTLET_CODE', label: 'Outlet Code' },
+        { id: 'OUTLET_NAME', label: 'Outlet Name' },
+        { id: 'OUTLET_MOBILE', label: 'Outlet Mobile', pattern: /^\d{10}$/, patternMsg: 'Enter a valid 10-digit mobile number.' },
+        { id: 'CITY', label: 'City' },
+        { id: 'STATE', label: 'State' },
+        { id: 'PINCODE', label: 'Pincode', pattern: /^\d{6}$/, patternMsg: 'Enter a valid 6-digit pincode.' },
+        { id: 'OUTLET_ADDRESS', label: 'Outlet Address' },
+        { id: 'DISTRIBUTOR_NAME', label: 'Distributor Name' },
+        { id: 'DISTRIBUTOR_CODE', label: 'Distributor Code' },
+        { id: 'CHANNEL', label: 'Channel' },
+        { id: 'VOLUME', label: 'Volume' },
+        { id: 'VPO', label: 'VPO' }
+    ];
+
+    // Loop through all required fields
+    for (let field of requiredFields) {
+        const input = document.getElementById(field.id);
+        if (!input) continue;
+
+        const value = input.value.trim();
+        if (value === '') {
+            alert(`Please fill in the ${field.label}.`);
+            input.focus();
+            e.preventDefault();
+            return false;
+        }
+
+        if (field.pattern && !field.pattern.test(value)) {
+            alert(field.patternMsg || `Invalid ${field.label}.`);
+            input.focus();
+            e.preventDefault();
+            return false;
+        }
+    }
+
+    // Validate Latitude and Longitude
+    const latInput = document.getElementById('LAT');
+    const longInput = document.getElementById('LONG');
+    const lat = parseFloat(latInput.value);
+    const long = parseFloat(longInput.value);
+
+    if (!latInput.value || isNaN(lat) || lat === 0.0) {
+        alert("Latitude is missing or invalid (should not be 0). Please use 'Get Current Location'.");
+        latInput.focus();
+        e.preventDefault();
+        return false;
+    }
+
+    if (!longInput.value || isNaN(long) || long === 0.0) {
+        alert("Longitude is missing or invalid (should not be 0). Please use 'Get Current Location'.");
+        longInput.focus();
+        e.preventDefault();
+        return false;
+    }
+
+    return true; // ✅ All validations passed
+});
+
+        // Get current location and update form fields
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById('LAT').value = position.coords.latitude;
+                    document.getElementById('LONG').value = position.coords.longitude;
+                }, function(error) {
+                    alert('Error getting location: ' + error.message);
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+
+        // Update VPO dropdown based on selected volume
+        function updateVPOFromVolume() {
+            const volume = document.getElementById('VOLUME').value;
+            const vpoSelect = document.getElementById('VPO');
+            if (volume === '(1-199)') {
+                vpoSelect.value = 'BRONZE';
+            } else if (volume === '(200-499)') {
+                vpoSelect.value = 'SILVER';
+            } else if (volume === '(500-899)') {
+                vpoSelect.value = 'GOLD';
+            } else if (volume === '(900+)') {
+                vpoSelect.value = 'PLATINUM';
+            } else {
+                vpoSelect.value = '';
+            }
+        }
+
+        // Run on page load to sync VPO if volume is already set
+        document.addEventListener('DOMContentLoaded', function() {
+            updateVPOFromVolume();
+        });
+function toggleSGACount() {
+    const sgaSelect = document.getElementById('SGA');
+    const sgaCountSelect = document.getElementById('SGA_COUNT');
+    if (sgaSelect.value === 'NO') {
+        sgaCountSelect.disabled = true;
+        sgaCountSelect.value=0
+        renderSGAFields()
+
+    } else {
+        sgaCountSelect.disabled = false;
+    }
+}
+
+// Call on page load to set initial state
+document.addEventListener('DOMContentLoaded', function() {
+    updateVPOFromVolume();
+    toggleSGACount();  // Set readonly/disabled for SGA_COUNT based on SGA value
+});
+
+// Automatically convert input text to uppercase
+document.addEventListener('DOMContentLoaded', function () {
+    const inputs = document.querySelectorAll('input[type="text"], textarea');
+
+    inputs.forEach(input => {
+        // Style for appearance
+        input.style.textTransform = "uppercase";
+
+        // Listener for value transformation
+        input.addEventListener('input', function () {
+            this.value = this.value.toUpperCase();
+        });
+    });
+});
+    </script>
+
+<script>
+    // Compress image before form submit
+    document.getElementById('outletSurveyForm').addEventListener('submit', async function (e) {
+        e.preventDefault(); // Stop form temporarily
+        const form = this;
+
+        const fileInputs = form.querySelectorAll('input[type="file"]');
+        const compressedFiles = {};
+
+        for (const input of fileInputs) {
+            const file = input.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const compressed = await compressImage(file, 800, 0.6); // maxWidth: 800px, quality: 60%
+                const blobFile = new File([compressed], file.name, { type: 'image/jpeg' });
+                
+                // Replace the original input with new file using DataTransfer
+                const dt = new DataTransfer();
+                dt.items.add(blobFile);
+                input.files = dt.files;
+            }
+        }
+
+        form.submit(); // Now actually submit the form
+    });
+
+    // Compress image using canvas
+    function compressImage(file, maxWidth = 600, quality = 0.5) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    const scale = maxWidth / img.width;
+                    const width = Math.min(maxWidth, img.width);
+                    const height = img.height * scale;
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (blob) resolve(blob);
+                        else reject(new Error('Compression failed.'));
+                    }, 'image/jpeg', quality);
+                };
+            };
+
+            reader.onerror = (error) => reject(error);
+        });
+    }
+</script>
+
+<script>
+    document.getElementById('outletSurveyForm').addEventListener('submit', function (e) {
+        // Collect all required fields
+        const requiredFields = [
+            { id: 'OUTLET_NAME', label: 'Outlet Name' },
+            { id: 'OUTLET_MOBILE', label: 'Outlet Mobile', pattern: /^\d{10}$/, patternMsg: 'Please enter a valid 10-digit mobile number.' },
+            { id: 'CITY', label: 'City' },
+            { id: 'STATE', label: 'State' },
+            { id: 'LAT', label:'Lat'},
+            { id: 'LONG', label:'Long'},
+            { id: 'PINCODE', label: 'Pincode', pattern: /^\d{6}$/, patternMsg: 'Please enter a valid 6-digit pincode.' },
+            { id: 'OUTLET_ADDRESS', label: 'Outlet Address' },
+            { id: 'DISTRIBUTOR_CODE', label: 'Distributor Code' },
+            { id: 'DISTRIBUTOR_NAME', label: 'Distributor Name' },
+            { id: 'channel', label: 'Channel' },
+            { id: 'VOLUME', label: 'Volume' },
+            { id: 'VPO', label: 'VPO' }
+        ];
+
+        for (let field of requiredFields) {
+            const input = document.getElementById(field.id);
+            const value = input.value.trim();
+            getLocation()
+            // Check for empty value
+            if (value === '') {
+                alert(`Please fill in the ${field.label}.`);
+                input.focus();
+                e.preventDefault();
+                return false;
+            }
+
+            // Optional pattern check (e.g., mobile, pincode)
+            if (field.pattern && !field.pattern.test(value)) {
+                alert(field.patternMsg || `Invalid ${field.label}`);
+                input.focus();
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        // Passed all checks
+        return true;
+    });
+</script>
+	<script>
+		const hamburger = document.getElementById('hamburger');
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('overlay');
+		const closeBtn = document.getElementById('closeBtn');
+
+		function openSidebar() {
+			sidebar.classList.add('show');
+			overlay.classList.add('show');
+		}
+
+		function closeSidebar() {
+			sidebar.classList.remove('show');
+			overlay.classList.remove('show');
+		}
+
+		hamburger.addEventListener('click', openSidebar);
+		closeBtn.addEventListener('click', closeSidebar);
+		overlay.addEventListener('click', closeSidebar);
+
+		// Keyboard accessibility for hamburger
+		hamburger.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				openSidebar();
+			}
+		});
+
+		// Keyboard accessibility for close button
+		closeBtn.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				closeSidebar();
+			}
+		});
+	</script>
+
+    </body>
+    </html>

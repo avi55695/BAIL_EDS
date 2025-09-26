@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <img src="{{ url_for('static', filename='LOGO.webp') }}" alt="EDS Logo" class="img-fluid" WIDTH="150px"> -->
+    <title>Outlet List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', filename='admin_dashboard.css') }}" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <style>
+        label, h2, .pagination .page-link, .pagination .page-item.active .page-link {
+            color: white;
+        }
+        
+        /* body {
+            padding-top: 60px;
+        }
+
+        .flash-message {
+            margin-top: 20px;
+        } */
+    </style>
+</head>
+<body>
+    <div class="dashboard-container d-flex">
+        <aside class="sidebar">
+            <img src="{{ url_for('static', filename='LOGO.webp') }}" width="150" />
+            <div class="logo">DASHBOARD {{ user.EMP_NAME }}</div>
+            <nav class="menu d-flex flex-column">
+                <a href="{{ url_for('admin_dashboard') }}"><i class="bx bx-home"></i> Dashboard </a>
+                <a href="{{ url_for('add_employee') }}"><i class="bx bx-edit-alt"></i> Add Employee</a>
+                <a href="{{ url_for('employee_list') }}"><i class="bx bx-table"></i> Employee List</a>
+                <a href="{{ url_for('add_distributor') }}"><i class="bx bx-calendar"></i> Add Distributor</a>
+                <a href="{{ url_for('distributor_list') }}"><i class="bx bx-user"></i> Distributor List</a>
+                <a href="{{ url_for('add_outlet') }}"><i class="bx bx-calendar"></i> Add Outlet</a>
+                <a href="{{ url_for('outlet_list') }}"><i class="bx bx-user"></i> Outlet List </a>
+                <a href="{{ url_for('view_channels') }}"><i class="bx bx-user"></i> View Channels</a>
+
+                <div class="label mt-4 mb-2">Reports</div>
+                <a href="{{ url_for('complete_survey_report') }}"><i class="bx bx-edit-alt"></i> Updated Outlet Data
+                    Survey Report</a>
+                <a href="{{ url_for('total_outlet_complete') }}"><i class="bx bx-edit-alt"></i> All Outlet Complete
+                    Report</a>
+                <a href="{{ url_for('eds_new_survey_report') }}"><i class="bx bx-edit-alt"></i> Total New Outlet
+                    Complete Report</a>
+                <!-- <a href="{{ url_for('total_customer') }}"><i class="bx bx-edit-alt"></i> Total Customer</a> -->
+            </nav>
+        </aside>
+
+        <main class="main-content flex-grow-1 p-4">
+            <header class="topbar d-flex justify-content-between align-items-center mb-4">
+                <input type="text" class="search-bar form-control w-50" placeholder="Enter keywords" />
+                <div class="top-icons d-flex align-items-center gap-3">
+                    <i class="bx bx-envelope fs-4"></i>
+                    <i class="bx bx-flag fs-4"></i>
+                    <span class="username text-white">Admin</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+                </div>
+            </header>
+
+
+            <div class="container">
+
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="flash-message">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+                        role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <h2 class="mb-4">📋 Outlet List</h2>
+
+                <!-- Filter Form -->
+                <form method="GET" action="{{ url_for('outlet_list') }}" class="mb-4">
+                     <div class="row">
+                        <div class="col-md-4">
+                            <label for="distributor">Distributor Name</label>
+                            <select class="form-control" id="distributor" name="distributor">
+                                <option value="">All Distributors</option>
+                                {% for dist in distributor_names %}
+                                <option value="{{ dist }}" {% if request.args.get('distributor')==dist %}selected{%
+                                    endif %}>
+                                    {{ dist }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="area">Area (City)</label>
+                            <select class="form-control" id="area" name="area">
+                                <option value="">All Cities</option>
+                                {% for area in areas %}
+                                <option value="{{ area }}" {% if request.args.get('area')==area %}selected{% endif %}>
+                                    {{ area }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4" style="display: flex;align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary btn-block">🔍 Filter</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Outlet Table -->
+                {% if outlets %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover table-sm">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Outlet Code</th>
+                                <th>Name</th>
+                                <th>Mobile</th>
+                                <th>City</th>
+                                <th>State</th>
+                                <th>Status</th>
+                                <th>Distributor</th>
+                                <th>Channel</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for outlet in outlets %}
+                            <tr>
+                                <td>{{ outlet.OUTLET_CODE }}</td>
+                                <td>{{ outlet.OUTLET_NAME }}</td>
+                                <td>{{ outlet.OUTLET_MOBILE }}</td>
+                                <td>{{ outlet.CITY }}</td>
+                                <td>{{ outlet.STATE }}</td>
+                                <td>{{ outlet.STATUS }}</td>
+                                <td>{{ outlet.DISTRIBUTOR_NAME }}</td>
+                                <td>{{ outlet.CHANNEL }}</td>
+                                <td>{{ outlet.EMAIL_ID }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>No outlets found for selected filters.</p>
+                {% endif %}
+            </div>
+
+        </main>
+    </div>
+    
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

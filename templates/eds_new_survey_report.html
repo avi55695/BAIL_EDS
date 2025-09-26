@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Complete Survey Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">New Survey Portal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Return Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Complete New Outlet Survey Report</h2>
+
+        <!-- Filters -->
+        <form method="GET" action="{{ url_for('eds_new_survey_report') }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="email_id" class="form-label">Email ID:</label>
+                    <select name="email_id" id="email_id" class="form-select">
+                        <option value="">-- Select Email ID --</option>
+                        {% for email in email_list %}   
+                            <option value="{{ email }}" {% if filters.email == email %}selected{% endif %}>{{ email }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="distributor_name" class="form-label">Distributor Name:</label>
+                    <select name="distributor_name" id="distributor_name" class="form-select">
+                        <option value="">-- Select Distributor --</option>
+                        {% for dist in distributor_list %}
+                            <option value="{{ dist }}" {% if filters.distributor == dist %}selected{% endif %}>{{ dist }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status (free text):</label>
+                    <input type="text" id="status" name="status" value="{{ filters.status }}" placeholder="Enter Status" class="form-control" />
+                </div>
+
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Display message or table
+        {% if data %} -->
+             <div class="mb-3 text-end mt-3">
+            <a href="{{ url_for('export_all_newdata_excel') }}" class="btn btn-warning">
+            Export All Data to Excel</a></div>
+            <!-- <!-- Export button -->
+            <a href="{{ url_for('export_filtered_newdata_excel', email_id=filters.email, distributor_name=filters.distributor, status=filters.status) }}" class="btn btn-success">
+            Export Filtered to Excel
+            </a>
+
+            <!-- Data table -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            {% for column in columns %}
+                                <th>{{ column }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                            <tr>
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center mt-3">
+                No data to display. Please use the filters above and click "Filter".
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

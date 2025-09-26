@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Add Employee</title>
+    <!-- <img src="{{ url_for('static', filename='LOGO.webp') }}" alt="EDS Logo" class="img-fluid" WIDTH="150px"> -->
+    <link href="{{ url_for('static', filename='add_employee.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='admin_dashboard.css') }}" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="dashboard-container d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <img src="{{ url_for('static', filename='LOGO.webp') }}" width="150" />
+            <div class="logo">DASHBOARD {{ user.EMP_NAME }}</div>
+            <nav class="menu d-flex flex-column">
+                <a href="{{ url_for('admin_dashboard') }}"><i class="bx bx-home"></i> Dashboard</a>
+                <a href="{{ url_for('add_employee') }}" class="active"><i class="bx bx-user-plus"></i> Add Employee</a>
+                <a href="{{ url_for('employee_list') }}"><i class="bx bx-table"></i> Employee List</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1 p-4">
+            <h2 class="mb-4">Add New Employee</h2>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Employee Form -->
+            <form action="{{ url_for('add_employee') }}" method="POST" class="row g-3">
+                <div class="col-md-6">
+                    <label for="emp_name" class="form-label">Employee Name</label>
+                    <input type="text" class="form-control" id="emp_name" name="emp_name" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label for="emp_code" class="form-label">Employee Code</label>
+                    <input type="text" class="form-control" id="emp_code" name="emp_code" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label for="mobile_no" class="form-label">Mobile Number</label>
+                    <input type="tel" class="form-control" id="mobile_no" name="mobile_no" pattern="[0-9]{10}" placeholder="10-digit mobile number" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label for="email_id" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email_id" name="email_id" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="city" name="city" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label for="permissions" class="form-label">Permissions</label>
+                    <select class="form-select" id="permissions" name="permissions" required>
+                        <option value="" selected disabled>Select Permissions</option>
+                        <option value="Admin">Admin</option>
+                        <option value="User">User</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS for alert dismissal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

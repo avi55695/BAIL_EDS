@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Outlet Portal</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 240px;
+      height: 100%;
+      background-color: #2c3e50;
+      padding: 20px;
+      color: white;
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      z-index: 1000;
+      transform: translateX(-100%); /* Hide by default */
+    }
+
+    body.sidebar-visible .sidebar {
+      transform: translateX(0);
+    }
+
+    .sidebar h3 {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #ecf0f1;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 10px 0;
+      color: #bdc3c7;
+      transition: color 0.2s;
+    }
+
+    .sidebar a.active,
+    .sidebar a:hover {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    /* Toggle button */
+    #sidebarToggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background-color: #34495e;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 1100;
+      border-radius: 4px;
+    }
+
+    /* Topbar */
+    .topbar {
+      background-color: #ecf0f1;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: margin-left 0.3s ease;
+      margin-left: 0;
+    }
+
+    body.sidebar-visible .topbar {
+      margin-left: 240px;
+    }
+
+    .topbar .user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar .user img {
+      width: 32px;
+      height: 32px;
+    }
+
+    /* Main Content */
+    .main {
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+      margin-left: 0;
+    }
+
+    body.sidebar-visible .main {
+      margin-left: 240px;
+    }
+
+    .header {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .sub-header {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #777;
+    }
+
+    .card-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      flex: 1;
+      min-width: 200px;
+      border-left: 5px solid #3f51b5;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .card h4 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .card p {
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .card .count {
+      font-size: 24px;
+      font-weight: bold;
+      color: #3f51b5;
+    }
+
+    /* Logout Button */
+    .btn-logout {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background-color: #e74c3c;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 4px;
+      text-decoration: none;
+      z-index: 1100;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body.sidebar-visible .topbar,
+      body.sidebar-visible .main {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body class="sidebar-hidden">
+
+  <!-- Toggle Button -->
+  <button id="sidebarToggle">&#9776;</button>
+
+  <!-- Logout Button -->
+  <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h3>MAIN DASHBOARD</h3>
+    <a class="active" href="#">Dashboard</a>
+    <h3>APPLICATIONS MANAGEMENT</h3>
+    <a href="{{ url_for('outlet_survey') }}">Outlet Survey</a>
+    <a href="{{ url_for('complete_survey') }}">All Complete Outlet</a>
+  </div>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div><strong>Dashboard Outlet Portal</strong></div>
+    <div class="user">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="user-icon">
+      <div>
+        <div>{{ user.EMP_NAME }}</div>
+        <small>Outlet Portal</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="header">Dashboard Outlet Portal</div>
+    <div class="sub-header">Manage All Data</div>
+
+    <div class="card-container">
+      <div class="card" style="border-left-color: #3f51b5;">
+        <h4>Outlets</h4>
+        <p>Manage All Outlets</p>
+        <div class="count">{{ outlet_survey_count }}</div>
+      </div>
+
+      <div class="card" style="border-left-color: #2196f3;">
+        <h4>Completed</h4>
+        <p>Manage All Completed</p>
+        <div class="count">{{ complete_survey_count }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS for Sidebar Toggle -->
+  <script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    document.body.classList.remove('sidebar-visible'); // start hidden
+
+    sidebarToggle.addEventListener('click', () => {
+      document.body.classList.toggle('sidebar-visible');
+    });
+  </script>
+</body>
+</html>

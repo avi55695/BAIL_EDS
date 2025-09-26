@@ -1,0 +1,17 @@
+flask
+pyodbc
+pandas
+logging
+werkzeug.utils
+reportlab
+reportlab.lib.pagesizes
+reportlab.lib
+reportlab.lib.style
+reportlab.platypus
+SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+re
+colors
+io
+os
+csv
+import datetime

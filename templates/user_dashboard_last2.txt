@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">-
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2>Outlet Portal</h2>
+    <a class="active" href="#">Dashboard</a>
+    <a href="{{ url_for('outlet_survey') }}">Outlet Survey</a>
+    <a href="{{ url_for('complete_survey') }}">All Completed</a>
+    <a href="{{ url_for('new_complete_outlet') }}">New Complete Outlet List</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="user-info">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="user-icon" />
+        <div>
+          <strong>{{ user.EMP_NAME }}</strong><br>
+          <small>{{ user.EMAIL_ID }}</small>
+        </div>
+      </div>
+    </header>
+
+    <!-- Welcome Banner -->
+    <section class="welcome-banner">
+      <div>
+        <h1>Welcome, {{ user.EMP_NAME }}</h1>
+        <p>Glad to see you again!</p>
+      </div>
+      
+    </section>
+
+    <!-- Cards Section -->
+    <section class="cards">
+      
+      <!-- Donut Chart Card -->
+      <div class="card">
+        <h4>Survey Completion Status</h4>
+        <canvas id="donutChart"></canvas>
+      </div>
+
+      <!-- Bar Chart Card -->
+      <div class="card">
+        <h4>Outlet Survey Overview</h4>
+        <canvas id="barChart"></canvas>
+      </div>
+
+      <!-- Dynamic Counts -->
+      <div class="card">
+        <h4>Outlets</h4>
+        <p>Total Assigned</p>
+        <div class="count">{{ outlet_survey_count }}</div>
+      </div>
+
+      <div class="card">
+        <h4>Completed</h4>
+        <p>Survey Done</p>
+        <div class="count">Updated Data:-{{ complete_survey_count }}, New Outlets:-{{ new_complete_outlet }}</div>
+      </div>
+      
+    </section>
+  </main>
+</div>
+
+<!-- Chart Scripts -->
+<script>
+  const donutCtx = document.getElementById('donutChart');
+  const barCtx = document.getElementById('barChart');
+
+  // ✅ Injected values safely from backend using Jinja2
+  const surveyData = {{ {
+    "outletCount": outlet_survey_count,
+    "completeCount": complete_survey_count
+} | tojson | safe }};
+
+  const outletCount = surveyData.outletCount || 0;
+  const completeCount = surveyData.completeCount || 0;
+  const pendingCount = outletCount - completeCount;
+
+  // ✅ Donut Chart - Pending vs Completed
+  new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Pending', 'Completed'],
+      datasets: [{
+        label: 'Survey Status',
+        data: [pendingCount, completeCount],
+        backgroundColor: ['#FF6384', '#36A2EB'],
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      cutout: '50%',
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  // ✅ Bar Chart - Survey Overview
+  new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Total Assigned', 'Completed'],
+      datasets: [{
+        label: 'Number of Surveys',
+        data: [outletCount, completeCount],
+        backgroundColor: ['#FF9800', '#4CAF50']
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

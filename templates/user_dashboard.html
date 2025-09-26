@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>User Dashboard</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+		integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		@media(max-width:768px){
+		.cards {
+			height: 500px;
+			overflow: scroll;
+		}}
+	</style>
+</head>
+
+<body>
+
+	<div class="dashboard">
+		<!-- Sidebar -->
+		<aside class="sidebar" id="sidebar">
+			<button id="closeBtn" aria-label="Close Menu">&times;</button>
+			<img src="{{ url_for('static', filename='slmg-logo-white.png') }}" alt="SLMG Logo" title="SLMG"
+				style="width:100%;" />
+			<a class="active" href="{{ url_for('user_dashboard') }}">Dashboard</a>
+			<a href="{{ url_for('outlet_survey') }}">Outlet Survey</a>
+			<a href="{{ url_for('complete_survey') }}">All Completed</a>
+			<a href="{{ url_for('new_complete_outlet') }}">New Complete Outlet List</a>
+			<a href="{{ url_for('logout') }}">Logout</a>
+			<div class="side-footer-img">
+				<img src="{{ url_for('static', filename='bottle-logo.webp') }}" alt="SLMG Logo" title="SLMG" />
+			</div>
+		</aside>
+
+
+		<!-- Overlay -->
+		<div class="overlay" id="overlay"></div>
+		<section class="outer-container">
+			<!-- Main Content -->
+			<main class="main-content">
+				<!-- Topbar -->
+				<header class="topbar">
+					<!-- Welcome Banner -->
+					<div class="content">
+						<h1>Welcome, {{ user.EMP_NAME }}</h1>
+						<p>Glad to see you again!</p>
+					</div>
+					<!-- Hamburger Icon -->
+					<div class="hamburger" id="hamburger" aria-label="Open Menu" role="button" tabindex="0">
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+
+					<div class="user-info">
+						<!-- <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="user-icon" /> -->
+						<span class="user-icon"><i class="fa fa-user" aria-hidden="true"></i></span>
+						<div class="user-content">
+							<strong>{{ user.EMP_NAME }}</strong><br />
+							<small>{{ user.EMAIL_ID }}</small>
+						</div>
+					</div>
+				</header>
+
+				<!-- Cards Section -->
+				<section class="cards">
+
+					<!-- Donut Chart Card -->
+					<div class="card">
+						<h4>Survey Completion Status</h4>
+						<hr>
+						<canvas id="donutChart"></canvas>
+					</div>
+
+					<!-- Bar Chart Card -->
+					<div class="card">
+						<h4>Outlet Survey Overview</h4>
+						<hr>
+						<canvas id="barChart" width="600" height="900"></canvas>
+					</div>
+
+					<!-- Dynamic Counts -->
+					<div class="card">
+						<h4>Outlets</h4>
+						<hr>
+						<p>Total Assigned</p>
+						<div class="count">{{ outlet_survey_count }}</div>
+					</div>
+
+					<div class="card">
+						<h4>Completed</h4>
+						<hr>
+						<p>Survey Done</p>
+						<div class="count">Updated Data : {{ complete_survey_count }}<br> New Outlets : {{ new_complete_outlet
+							}}
+						</div>
+					</div>
+
+				</section>
+			</main>
+		</section>
+	</div>
+
+	<!-- Chart Scripts -->
+	<script>
+		const donutCtx = document.getElementById('donutChart');
+const barCtx = document.getElementById('barChart');
+
+// Injected values safely from backend using Jinja2
+const surveyData = {{ {
+  "outletCount": outlet_survey_count,
+  "completeCount": complete_survey_count,
+  "newsurveycount": new_complete_outlet
+} | tojson | safe }};
+
+const outletCount = surveyData.outletCount || 0;
+const completeCount = surveyData.completeCount || 0;
+const pendingCount = outletCount - completeCount;
+const newsurveycount = surveyData.newsurveycount || 0;  // ✅ FIXED HERE
+
+// Donut Chart - Pending vs Completed
+new Chart(donutCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Pending', 'Completed'],
+    datasets: [{
+      label: 'Survey Status',
+      data: [pendingCount, completeCount],
+      backgroundColor: ['#bf0101', '#36A2EB'],
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    cutout: '50%',
+    plugins: { legend: { position: 'bottom' } }
+  }
+});
+
+// Bar Chart - Survey Overview
+new Chart(barCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Total Assigned', 'Completed', 'New Outlet Survey'],
+    datasets: [{
+      label: 'Number of Surveys',
+      data: [outletCount, completeCount, newsurveycount],
+      backgroundColor: ['#bf0101', '#4CAF50', '#FFC107'],  // ✅ Added third color
+      categoryPercentage: 0.8,
+      barPercentage: 0.6
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1 }
+      }
+    }
+  }
+});
+	</script>
+
+	<script>
+		const hamburger = document.getElementById('hamburger');
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('overlay');
+		const closeBtn = document.getElementById('closeBtn');
+
+		function openSidebar() {
+			sidebar.classList.add('show');
+			overlay.classList.add('show');
+		}
+
+		function closeSidebar() {
+			sidebar.classList.remove('show');
+			overlay.classList.remove('show');
+		}
+
+		hamburger.addEventListener('click', openSidebar);
+		closeBtn.addEventListener('click', closeSidebar);
+		overlay.addEventListener('click', closeSidebar);
+
+		// Keyboard accessibility for hamburger
+		hamburger.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				openSidebar();
+			}
+		});
+
+		// Keyboard accessibility for close button
+		closeBtn.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				closeSidebar();
+			}
+		});
+	</script>
+
+</body>
+
+</html>

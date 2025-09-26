@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Import Outlet Data</title>
+    <link href="{{ url_for('static', filename='admin_dashboard.css') }}" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <div class="dashboard-container d-flex">
+        <aside class="sidebar">
+            <img src="{{ url_for('static', filename='LOGO.webp') }}" width="150" />
+            <div class="logo">DASHBOARD {{ user.EMP_NAME }}</div>
+            <nav class="menu d-flex flex-column">
+                <a href="{{ url_for('admin_dashboard') }}"><i class="bx bx-home"></i> Dashboard </a>
+                <a href="{{ url_for('add_employee') }}"><i class="bx bx-edit-alt"></i> Add Employee</a>
+                <a href="{{ url_for('employee_list') }}"><i class="bx bx-table"></i> Employee List</a>
+                <a href="{{ url_for('add_distributor') }}"><i class="bx bx-calendar"></i> Add Distributor</a>
+                <a href="{{ url_for('distributor_list') }}"><i class="bx bx-user"></i> Distributor List</a>
+                <a href="{{ url_for('add_outlet') }}"><i class="bx bx-calendar"></i> Add Outlet</a>
+                <a href="{{ url_for('outlet_list') }}"><i class="bx bx-user"></i> Outlet List</a>
+                <a href="{{ url_for('view_channels') }}"><i class="bx bx-user"></i> View Channels</a>
+
+                <div class="label mt-4 mb-2">Reports</div>
+                <a href="{{ url_for('complete_survey_report') }}"><i class="bx bx-edit-alt"></i> Updated Outlet Data
+                    Survey Report</a>
+                <a href="{{ url_for('total_outlet_complete') }}"><i class="bx bx-edit-alt"></i> All Outlet Complete
+                    Report</a>
+                <a href="{{ url_for('eds_new_survey_report') }}"><i class="bx bx-edit-alt"></i> Total New Outlet
+                    Complete Report</a>
+                <!-- <a href="{{ url_for('total_customer') }}"><i class="bx bx-edit-alt"></i> Total Customer</a> -->
+            </nav>
+        </aside>
+
+        <main class="main-content flex-grow-1 p-4">
+            <header class="topbar d-flex justify-content-between align-items-center mb-4">
+                <!-- <input type="text" class="search-bar form-control w-50" placeholder="Enter keywords" /> -->
+                <div class="top-icons d-flex align-items-center gap-3">
+                    <i class="bx bx-envelope fs-4"></i>
+                    <i class="bx bx-flag fs-4"></i>
+                    <span class="username text-white">Admin</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+                </div>
+            </header>
+
+            <div class="container mt-5">
+                <h2 class="text-white">Upload Excel File for Outlet Import</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show"
+                    role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST" enctype="multipart/form-data" class="mb-4">
+                    <div class="mb-3">
+                        <label for="file" class="form-label text-white">Upload Excel File (.xlsx)</label>
+                        <input type="file" name="file" class="form-control" accept=".xlsx" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Import Outlets</button>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Channel List</title>
+    <link href="{{ url_for('static', filename='admin_dashboard.css') }}" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <div class="dashboard-container d-flex">
+        <aside class="sidebar">
+            <img src="{{ url_for('static', filename='LOGO.webp') }}" width="150" />
+            <div class="logo">DASHBOARD</div>
+            <nav class="menu d-flex flex-column">
+                <a href="{{ url_for('admin_dashboard') }}"><i class="bx bx-home"></i> Dashboard </a>
+                <a href="{{ url_for('add_employee') }}"><i class="bx bx-edit-alt"></i> Add Employee</a>
+                <a href="{{ url_for('employee_list') }}"><i class="bx bx-table"></i> Employee List</a>
+                <a href="{{ url_for('add_distributor') }}"><i class="bx bx-calendar"></i> Add Distributor</a>
+                <a href="{{ url_for('distributor_list') }}"><i class="bx bx-user"></i> Distributor List</a>
+                <a href="{{ url_for('add_outlet') }}"><i class="bx bx-calendar"></i> Add Outlet</a>
+                <a href="{{ url_for('outlet_list') }}"><i class="bx bx-user"></i> Outlet List</a>
+                <a href="{{ url_for('view_channels') }}"><i class="bx bx-user"></i> View Channels</a>
+
+                <div class="label mt-4 mb-2">Reports</div>
+                <a href="{{ url_for('complete_survey_report') }}"><i class="bx bx-edit-alt"></i> Updated Outlet Data
+                    Survey Report</a>
+                <a href="{{ url_for('total_outlet_complete') }}"><i class="bx bx-edit-alt"></i> All Outlet Complete
+                    Report</a>
+                <a href="{{ url_for('eds_new_survey_report') }}"><i class="bx bx-edit-alt"></i> Total New Outlet
+                    Complete Report</a>
+                <!-- <a href="{{ url_for('total_customer') }}"><i class="bx bx-edit-alt"></i> Total Customer</a> -->
+            </nav>
+        </aside>
+
+        <main class="main-content flex-grow-1 p-4">
+            <header class="topbar d-flex justify-content-between align-items-center mb-4">
+                <input type="text" class="search-bar form-control w-50" placeholder="Enter keywords" />
+                <div class="top-icons d-flex align-items-center gap-3">
+                    <i class="bx bx-envelope fs-4"></i>
+                    <i class="bx bx-flag fs-4"></i>
+                    <span class="username text-white">Admin</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="container mt-5">
+                <h2 class="mb-4 text-center text-white">Channel Master List</h2>
+
+                {% if data %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                {% for col in columns %}
+                                <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                            <tr>
+                                {% for cell in row %}
+                                <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    No channel data found.
+                </div>
+                {% endif %}
+            </div>
+
+        </main>
+    </div>
+
+</body>
+
+</html>

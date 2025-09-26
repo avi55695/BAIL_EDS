@@ -1,0 +1,347 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Edit Outlet Survey</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styleedit.css') }}">
+    </head>
+    <body>
+    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+    <a href="{{ url_for('outlet_survey') }}" class="btn-dashboard">Return to Outlet Survey</a>
+        {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-info" role="alert">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="form-container">
+        <h2>Edit Outlet Survey</h2>
+        <form method="POST" enctype="multipart/form-data">
+    
+            <!-- TRANSACTIONS ID -->
+            <label for="TRANSACTIONS_ID">TRANSACTIONS ID</label>
+            <input type="text" id="TRANSACTIONS_ID" readonly name="TRANSACTIONS_ID" value="{{ record['TRANSACTIONS_ID'] or '' }}" />
+            <!-- Email ID -->
+            <label for="EMAIL_ID">Email ID</label>
+            <input type="text" id="EMAIL_ID" name="EMAIL_ID" value="{{ record['EMAIL_ID'] or '' }}" readonly/>  
+            <!-- Status -->
+            <label for="STATUS">Status</label>
+            <input type="text" id="STATUS" name="STATUS" value="{{ record['STATUS'] or '' }}" readonly/>
+
+            <!-- Outlet Code -->
+            <label for="OUTLET_CODE">Outlet Code</label>
+            <input type="text" id="OUTLET_CODE" readonly required name="OUTLET_CODE" value="{{ record['OUTLET_CODE'] or '' }}" />
+
+            <!-- Outlet Name -->
+            <label for="OUTLET_NAME">Outlet Name</label>
+            <input type="text" id="OUTLET_NAME" name="OUTLET_NAME" value="{{ record['OUTLET_NAME'] or '' }}" required/>
+
+            <!-- Mobile -->
+            <label for="OUTLET_MOBILE">Outlet Mobile</label>
+            <input type="text" id="OUTLET_MOBILE" name="OUTLET_MOBILE" value="{{ record['OUTLET_MOBILE'] or '' }}" />
+
+            <!-- City -->
+            <label for="CITY">City</label>
+            <input type="text" id="CITY" name="CITY" value="{{ record['CITY'] or '' }}" />
+
+            <!-- State -->
+            <label for="STATE">State</label>
+            <input type="text" id="STATE" name="STATE" value="{{ record['STATE'] or '' }}" />
+
+            <!-- Pincode -->
+            <label for="PINCODE">Pincode</label>
+            <input type="text" id="PINCODE" name="PINCODE" value="{{ record['PINCODE'] or '' }}" />
+
+            <!-- Outlet Address -->
+            <label for="OUTLET_ADDRESS">Outlet Address</label>
+            <textarea id="OUTLET_ADDRESS" name="OUTLET_ADDRESS">{{ record['OUTLET_ADDRESS'] or '' }}</textarea>
+
+            <!-- Latitude -->
+            <label for="LAT">Latitude</label>
+            <input type="text" id="LAT" name="LAT" value="{{ record['LAT'] or '' }}" readonly required/> 
+
+            <!-- Longitude -->
+            <label for="LONG">Longitude</label>
+            <input type="text" id="LONG" name="LONG" value="{{ record['LONG'] or '' }}" readonly required/>
+            <button type="button" onclick="getLocation()">Get Current Location</button>
+
+            <!-- GST Number 
+            <label for="GSTNO">GST Number</label>
+            <input type="text" id="GSTNO" name="GSTNO" value="{{ record['GSTNO'] or '' }}" />-->
+
+            <!-- Distributor Code -->
+            <label for="DISTRIBUTOR_CODE">Distributor Code</label>
+            <input type="text" id="DISTRIBUTOR_CODE" name="DISTRIBUTOR_CODE" value="{{ record['DISTRIBUTOR_CODE'] or '' }}" />
+
+            <!-- Distributor Name -->
+            <label for="DISTRIBUTOR_NAME">Distributor Name</label>
+            <input type="text" id="DISTRIBUTOR_NAME" name="DISTRIBUTOR_NAME" value="{{ record['DISTRIBUTOR_NAME'] or '' }}" />
+
+            <!-- Channel -->
+            <label for="CHANNEL">Channel</label>
+            <input type="text" id="CHANNEL" name="CHANNEL" value="{{ record['CHANNEL'] or '' }}" />
+
+            <!-- VOLUME -->
+            <label for="VOLUME">Volume</label>
+            <select id="VOLUME" name="VOLUME" onchange="updateVPOFromVolume()" required>
+                <option value="" {% if record.get('VOLUME', '') == '' %}selected{% endif %}>-- Select VOLUME --</option>
+                <option value="(1-199)" {% if record.get('VOLUME', '') == '(1-199)' %}selected{% endif %}>(1-199)</option>
+                <option value="(200-499)" {% if record.get('VOLUME', '') == '(200-499)' %}selected{% endif %}>(200-499)</option>
+                <option value="(500-899)" {% if record.get('VOLUME', '') == '(500-899)' %}selected{% endif %}>(500-899)</option>
+                <option value="(900+)" {% if record.get('VOLUME', '') == '(900+)' %}selected{% endif %}>(900+)</option>
+            </select>
+            <label for="VPO">VPO</label>
+            <select id="VPO" name="VPO">
+        <option value="">-- Select VPO --</option>
+        <option value="BRONZE" {% if record.get('VPO', '') == 'BRONZE' %}selected{% endif %}>BRONZE</option>
+        <option value="SILVER" {% if record.get('VPO', '') == 'SILVER' %}selected{% endif %}>SILVER</option>
+        <option value="GOLD" {% if record.get('VPO', '') == 'GOLD' %}selected{% endif %}>GOLD</option>
+        <option value="PLATINUM" {% if record.get('VPO', '') == 'PLATINUM' %}selected{% endif %}>PLATINUM</option>
+            </select>
+
+            <!-- SGA -->
+            <label for="SGA">SGA</label>
+            <select id="SGA" name="SGA">
+                <option value="" {% if record.get('SGA', '') == '' %}selected{% endif %}>-- Select SGA --</option>
+                <option value="YES" {% if record.get('SGA', '') == 'YES' %}selected{% endif %}>YES</option>
+                <option value="NO" {% if record.get('SGA', '') == 'NO' %}selected{% endif %}>NO</option>
+            </select>
+
+            <!-- SGA Count Dropdown -->
+    <label for="SGA_COUNT">SGA Count</label>
+    <select id="SGA_COUNT" name="SGA_COUNT" onchange="renderSGAFields()">   
+        {% for i in range(6) %}
+            <option value="{{ i }}" {% if record.get('SGA_COUNT', 0) == i %}selected{% endif %}>{{ i }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Dynamic SGA Inputs Container -->
+    <div id="sgaFieldsContainer">
+        {% for i in range(1, record.get('SGA_COUNT', 0) + 1) %}
+        <div class="sga-block" style="margin-top: 10px; padding: 10px; border: 1px solid #ccc;">
+            <strong>SGA {{ i }}</strong><br>
+        <label>Working Conditions:</label>
+        <select name="SGA_WORKING_CONDITIONS_{{ i }}">
+        <option value="">-- Select Working Condition --</option>
+        <option value="1">OLD</option>
+        <option value="2">NEW</option>
+        </select><br>
+            <label>SGA Type:</label>
+            <select name="SGA_TYPE_{{ i }}">
+                <option value="">-- Select SGA Type --</option>
+                {% for sga_type in sga_types %}
+                    <option value="{{ sga_type }}" {% if record.get('SGA_TYPE_' ~ i, '') == sga_type %}selected{% endif %}>{{ sga_type }}</option>
+                {% endfor %}
+            </select><br>
+            <label>Serial No:</label>
+            <input type="text" name="SGA_SERIAL_NO_{{ i }}" value="{{ record['SGA_SERIAL_NO_' ~ i] or '' }}"><br>
+            
+            <label>Asset Tag No:</label>
+            <input type="text" name="SGA_ASSEST_TAG_NO_{{ i }}" value="{{ record['SGA_ASSEST_TAG_NO_' ~ i] or '' }}"><br>
+            
+            <label>BAIL ID:</label>
+            <input type="text" name="BAIL_ID_{{ i }}" value="{{ record['BAIL_ID_' ~ i] or '' }}"><br>
+
+            <label>Asset Image:</label>
+            <input type="file" name="IMAGE_UPLOAD_ASSEST_SERIAL_NO_{{ i }}" accept="image/*"><br>
+
+            {% if record['IMAGE_UPLOAD_ASSEST_SERIAL_NO_' ~ i] %}
+                <img src="{{ url_for('static', filename='uploads/' + record['IMAGE_UPLOAD_ASSEST_SERIAL_NO_' ~ i]) }}" style="max-height: 100px; margin-top: 5px;">
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+            <!-- BAIL ID -->
+            <label for="BAIL_ID">BAIL_ID</label>
+            <input type="text" id="BAIL_ID" name="BAIL_ID" value="{{ record['BAIL_ID'] or '' }}" />
+
+            <!-- Image Upload Asset Serial No -->
+            <div class="form-group">
+                <label for="OUTLET_IMAGE">Upload Outlet Image:</label>
+                <input type="file" name="OUTLET_IMAGE" accept="image/*" class="form-control" />
+
+                {% if record.OUTLET_IMAGE %}
+                <p>Current Image:</p>
+                <img src="{{ url_for('static', filename='uploads/' + record.OUTLET_IMAGE) }}"
+                    alt="Outlet Image" style="max-height: 150px;" />
+                {% endif %}
+            </div>
+
+            <!-- Hidden primary key -->
+            <input type="hidden" name="TRANSACTIONS_ID" value="{{ record['TRANSACTIONS_ID'] }}"/>
+
+            <br /><br />
+            <button type="submit">Update</button>
+            <a href="{{ url_for('outlet_survey') }}">Cancel</a>
+        </form>
+    </div>
+
+    <script>
+    const sgaTypesJson = '{{ (sga_types or []) | tojson | safe }}';
+    const sgaTypes = JSON.parse(sgaTypesJson);
+    function renderSGAFields() {    
+    const count = parseInt(document.getElementById('SGA_COUNT').value);
+    const container = document.getElementById('sgaFieldsContainer');
+    container.innerHTML = '';
+
+    for (let i = 1; i <= count; i++) {
+        let sgaTypeOptions = '<option value="">-- Select SGA Type --</option>';
+        sgaTypes.forEach(type => {
+            sgaTypeOptions += `<option value="${type}">${type}</option>`;
+        });
+
+        const div = document.createElement('div');
+        div.className = "sga-block";
+        div.style = "margin-top: 10px; padding: 10px; border: 1px solid #ccc;";
+        div.innerHTML = `
+            <strong>SGA ${i}</strong><br>
+            <label>Working Conditions:</label>
+            <select name="SGA_WORKING_CONDITIONS_${i}">
+                <option value="">-- Select Working Condition --</option>
+                <option value="1">OLD</option>
+                <option value="2">NEW</option>
+            </select><br>
+            <label>SGA Type:</label>
+            <select name="SGA_TYPE_${i}">
+                ${sgaTypeOptions}
+            </select><br>
+            <label>Serial No:</label>
+            <input type="text" name="SGA_SERIAL_NO_${i}"><br>
+            <label>Asset Tag No:</label>
+            <input type="text" name="SGA_ASSEST_TAG_NO_${i}"><br>
+            <label>BAIL ID:</label>
+            <input type="text" name="BAIL_ID_${i}"><br>
+            <label>Asset Image:</label>
+            <input type="file" name="IMAGE_UPLOAD_ASSEST_SERIAL_NO_${i}" accept="image/*"><br>
+        `;
+        container.appendChild(div);
+    }
+}
+    // Render fields on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        renderSGAFields();
+    });
+        // Call updateRowNumbers on page load to reindex initial rows properly
+        document.addEventListener('DOMContentLoaded', function () {
+            updateRowNumbers();
+        });
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+            let errors = [];
+
+            const lat = document.getElementById('LAT').value.trim();
+            const long = document.getElementById('LONG').value.trim();
+            const distributorName = document.getElementById('DISTRIBUTOR_NAME').value.trim();
+            const volume = document.getElementById('VOLUME').value.trim();
+            const city = document.getElementById('CITY').value.trim();
+            const state = document.getElementById('STATE').value.trim();
+            const pincode = document.getElementById('PINCODE').value.trim();
+            const address = document.getElementById('OUTLET_ADDRESS').value.trim();
+
+            const assetImageInput = document.querySelector('input[name="IMAGE_UPLOAD_ASSEST_SERIAL_NO"]');
+            const outletImageInput = document.querySelector('input[name="OUTLET_IMAGE"]');
+
+            const existingAssetImage = true;   // Set to false if no existing image
+            const existingOutletImage = true;  // Set to false if no existing image
+
+            if (!lat) errors.push("Latitude is required.");
+            if (!long) errors.push("Longitude is required.");
+            if (!distributorName) errors.push("Distributor Name is required.");
+            if (!volume) errors.push("Volume is required.");
+            if (!city) errors.push("City is required.");
+            if (!state) errors.push("State is required.");
+            if (!pincode) errors.push("Pincode is required.");
+            if (!address) errors.push("Outlet Address is required.");
+
+            if (!existingAssetImage && !assetImageInput.value) {
+                errors.push("Upload Asset Serial Image is required.");
+            }
+
+            if (!existingOutletImage && !outletImageInput.value) {
+                errors.push("Upload Outlet Image is required.");
+            }
+
+            if (errors.length > 0) {
+                e.preventDefault();  // Prevent form submission
+                alert("Please fix the following errors:\n\n" + errors.join("\n"));
+            }
+        });
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById("LAT").value = position.coords.latitude;
+                    document.getElementById("LONG").value = position.coords.longitude;
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function addRow() {
+            const tbody = document.querySelector('#sgaTable tbody');
+            const rowCount = tbody.rows.length;
+            const newRow = document.createElement('tr');
+
+            newRow.innerHTML = `
+                <td>${rowCount + 1}</td>
+                <td><input type="text" name="SGA_WORKING_CONDITIONS_${rowCount}" /></td>
+                <td><input type="text" name="SGA_PRODUCT_TYPE_${rowCount}" /></td>
+                <td><input type="text" name="SGA_SERIAL_NO_${rowCount}" /></td>
+                <td><input type="text" name="SGA_ASSEST_TAG_NO_${rowCount}" /></td>
+                <td><button type="button" onclick="removeRow(this)">Delete</button></td>
+            `;
+
+            tbody.appendChild(newRow);
+            updateRowNumbers();
+        }
+
+        function removeRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            updateRowNumbers();
+        }
+
+        function updateRowNumbers() {
+            const tbody = document.querySelector('#sgaTable tbody');
+            for (let i = 0; i <= tbody.rows.length; i++) {
+                const row = tbody.rows[i];
+                // Update row number
+                row.cells[0].textContent = i + 1;
+
+                // Update names for all inputs in this row
+                const inputs = row.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const nameParts = input.name.split('_');
+                    // Replace last part with current index
+                    nameParts[nameParts.length - 1] = i;
+                    input.name = nameParts.join('_');
+                });
+            }
+        }
+    function updateVPOFromVolume() {
+        const volumeSelect = document.getElementById('VOLUME');
+        const vpoSelect = document.getElementById('VPO');
+
+        const mapping = {
+            "(1-199)": "BRONZE",
+            "(200-499)": "SILVER",
+            "(500-899)": "GOLD",
+            "(900+)": "PLATINUM"
+        };
+
+        const selectedVolume = volumeSelect.value;
+
+        if (mapping[selectedVolume]) {
+            vpoSelect.value = mapping[selectedVolume];
+        } else {
+            vpoSelect.value = ""; // Clear if no match
+        }
+    }
+    </script>
+    </body>
+    </html>

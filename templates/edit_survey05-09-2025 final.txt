@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edit Outlet Survey</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styleedit.css') }}">
+</head>
+<body>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info" role="alert">
+      {% for message in messages %}
+        {{ message }}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+    <div class="form-container">
+    <h2>Edit Outlet Survey</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="TRANSACTIONS_ID">TRANSACTIONS ID</label>
+        <input type="text" id="TRANSACTIONS_ID" readonly name="TRANSACTIONS_ID" value="{{ record['TRANSACTIONS_ID'] or '' }}" />
+        <!-- Status -->
+        <label for="STATUS">Status</label>
+        <input type="text" id="STATUS" name="STATUS" value="{{ record['STATUS'] or '' }}" readonly/>
+
+        <!-- Outlet Code -->
+        <label for="OUTLET_CODE">Outlet Code</label>
+        <input type="text" id="OUTLET_CODE" readonly required name="OUTLET_CODE" value="{{ record['OUTLET_CODE'] or '' }}" />
+
+        <!-- Outlet Name -->
+        <label for="OUTLET_NAME">Outlet Name</label>
+        <input type="text" id="OUTLET_NAME" name="OUTLET_NAME" value="{{ record['OUTLET_NAME'] or '' }}" required/>
+
+        <!-- Mobile -->
+        <label for="OUTLET_MOBILE">Outlet Mobile</label>
+        <input type="text" id="OUTLET_MOBILE" name="OUTLET_MOBILE" value="{{ record['OUTLET_MOBILE'] or '' }}" />
+
+        <!-- City -->
+        <label for="CITY">City</label>
+        <input type="text" id="CITY" name="CITY" value="{{ record['CITY'] or '' }}" />
+
+        <!-- State -->
+        <label for="STATE">State</label>
+        <input type="text" id="STATE" name="STATE" value="{{ record['STATE'] or '' }}" />
+
+        <!-- Pincode -->
+        <label for="PINCODE">Pincode</label>
+        <input type="text" id="PINCODE" name="PINCODE" value="{{ record['PINCODE'] or '' }}" />
+
+        <!-- Outlet Address -->
+        <label for="OUTLET_ADDRESS">Outlet Address</label>
+        <textarea id="OUTLET_ADDRESS" name="OUTLET_ADDRESS">{{ record['OUTLET_ADDRESS'] or '' }}</textarea>
+
+        <!-- Latitude -->
+        <label for="LAT">Latitude</label>
+        <input type="text" id="LAT" name="LAT" value="{{ record['LAT'] or '' }}" readonly required/> 
+
+        <!-- Longitude -->
+        <label for="LONG">Longitude</label>
+        <input type="text" id="LONG" name="LONG" value="{{ record['LONG'] or '' }}" readonly required/>
+        <button type="button" onclick="getLocation()">Get Current Location</button>
+
+        <!-- GST Number -->
+        <label for="GSTNO">GST Number</label>
+        <input type="text" id="GSTNO" name="GSTNO" value="{{ record['GSTNO'] or '' }}" />
+
+        <!-- Distributor Code -->
+        <label for="DISTRIBUTOR_CODE">Distributor Code</label>
+        <input type="text" id="DISTRIBUTOR_CODE" name="DISTRIBUTOR_CODE" value="{{ record['DISTRIBUTOR_CODE'] or '' }}" />
+
+        <!-- Distributor Name -->
+        <label for="DISTRIBUTOR_NAME">Distributor Name</label>
+        <input type="text" id="DISTRIBUTOR_NAME" name="DISTRIBUTOR_NAME" value="{{ record['DISTRIBUTOR_NAME'] or '' }}" />
+
+        <!-- Channel -->
+        <label for="CHANNEL">Channel</label>
+        <input type="text" id="CHANNEL" name="CHANNEL" value="{{ record['CHANNEL'] or '' }}" />
+
+        <!-- Category -->
+        <label for="CATEGORY">Volume</label>
+        <input type="text" id="CATEGORY" name="CATEGORY" value="{{ record['CATEGORY'] or '' }}" />
+
+        <!-- SGA -->
+        <label for="SGA">SGA</label>
+        <select id="SGA" name="SGA">
+            <option value="" {% if record.get('SGA', '') == '' %}selected{% endif %}>-- Select SGA --</option>
+            <option value="0" {% if (record.get('SGA', '0')|int) == 0 %}selected{% endif %}>0</option>
+            <option value="1" {% if (record.get('SGA', '0')|int) == 1 %}selected{% endif %}>1</option>
+            <option value="2" {% if (record.get('SGA', '0')|int) == 2 %}selected{% endif %}>2</option>
+            <option value="3" {% if (record.get('SGA', '0')|int) == 3 %}selected{% endif %}>3</option>
+            <option value="4" {% if (record.get('SGA', '0')|int) == 4 %}selected{% endif %}>4</option>
+            <option value="5" {% if (record.get('SGA', '0')|int) == 5 %}selected{% endif %}>5</option>
+        </select>
+<!-- SGA Details Table -->
+<label>SGA Details</label>
+<table id="sgaTable" border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+    <thead>
+        <tr>
+            <th style="width: 30px;">#</th>
+            <th>Working Conditions</th>
+            <th>Product Type</th>
+            <th>Serial No</th>
+            <th>Asset Tag No</th>
+            <th style="width: 50px;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in range(5) %}
+        <tr>
+            <td>{{ i + 1 }}</td>
+            <td><input type="text" name="SGA_WORKING_CONDITIONS_{{ i }}" value="{{ sga_items[i].WORKING_CONDITIONS if sga_items[i] is defined else '' }}" /></td>
+            <td><input type="text" name="SGA_PRODUCT_TYPE_{{ i }}" value="{{ sga_items[i].PRODUCT_TYPE if sga_items[i] is defined else '' }}" /></td>
+            <td><input type="text" name="SGA_SERIAL_NO_{{ i }}" value="{{ sga_items[i].SERIAL_NO if sga_items[i] is defined else '' }}" /></td>
+            <td><input type="text" name="SGA_ASSEST_TAG_NO_{{ i }}" value="{{ sga_items[i].ASSEST_TAG_NO if sga_items[i] is defined else '' }}" /></td>
+            <td><button type="button" onclick="removeRow(this)">Delete</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<button type="button" onclick="addRow()" style="margin-top: 10px;">Add Row</button>
+        <!-- BAIL ID -->
+        <label for="BAIL_ID">BAIL_ID</label>
+        <input type="text" id="BAIL_ID" name="BAIL_ID" value="{{ record['BAIL_ID'] or '' }}" />
+
+        <!-- Image Upload Asset Serial No -->
+     <div class="form-group">
+  <label for="IMAGE_UPLOAD_ASSEST_SERIAL_NO">Upload Asset Serial Image:</label>
+  <input type="file" name="IMAGE_UPLOAD_ASSEST_SERIAL_NO" accept="image/*" class="form-control" />
+
+  {% if record['IMAGE_UPLOAD_ASSEST_SERIAL_NO'] %}
+    <p>Current Image:</p>
+    <img src="{{ url_for('static', filename='uploads/' + record['IMAGE_UPLOAD_ASSEST_SERIAL_NO']) }}"
+         alt="Asset Image" style="max-height: 150px;" />
+  {% endif %}
+</div>
+
+<div class="form-group">
+  <label for="OUTLET_IMAGE">Upload Outlet Image:</label>
+  <input type="file" name="OUTLET_IMAGE" accept="image/*" class="form-control" />
+
+  {% if record.OUTLET_IMAGE %}
+    <p>Current Image:</p>
+    <img src="{{ url_for('static', filename='uploads/' + record.OUTLET_IMAGE) }}"
+         alt="Outlet Image" style="max-height: 150px;" />
+  {% endif %}
+</div>
+        <!-- Hidden primary key -->
+        <input type="hidden" name="TRANSACTIONS_ID" value="{{ record['TRANSACTIONS_ID'] }}"/>
+
+        <br /><br />
+        <button type="submit">Update</button>
+        <a href="{{ url_for('outlet_survey') }}">Cancel</a>
+    </form>
+</div>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function (e) {
+        let errors = [];
+
+        const lat = document.getElementById('LAT').value.trim();
+        const long = document.getElementById('LONG').value.trim();
+        const distributorName = document.getElementById('DISTRIBUTOR_NAME').value.trim();
+        const volume = document.getElementById('CATEGORY').value.trim();
+        const city = document.getElementById('CITY').value.trim();
+        const state = document.getElementById('STATE').value.trim();
+        const pincode = document.getElementById('PINCODE').value.trim();
+        const address = document.getElementById('OUTLET_ADDRESS').value.trim();
+
+        const assetImageInput = document.querySelector('input[name="IMAGE_UPLOAD_ASSEST_SERIAL_NO"]');
+        const outletImageInput = document.querySelector('input[name="OUTLET_IMAGE"]');
+
+        const existingAssetImage = true;   // if image exists
+        const existingOutletImage = true;  // if it doesn't
+        if (!lat) errors.push("Latitude is required.");
+        if (!long) errors.push("Longitude is required.");
+        if (!distributorName) errors.push("Distributor Name is required.");
+        if (!volume) errors.push("Volume is required.");
+        if (!city) errors.push("City is required.");
+        if (!state) errors.push("State is required.");
+        if (!pincode) errors.push("Pincode is required.");
+        if (!address) errors.push("Outlet Address is required.");
+
+        if (!existingAssetImage && !assetImageInput.value) {
+            errors.push("Upload Asset Serial Image is required.");
+        }
+
+        if (!existingOutletImage && !outletImageInput.value) {
+            errors.push("Upload Outlet Image is required.");
+        }
+
+        if (errors.length > 0) {
+            e.preventDefault();  // Prevent form submission
+            alert("Please fix the following errors:\n\n" + errors.join("\n"));
+        }
+    });
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            document.getElementById("LAT").value = position.coords.latitude;
+            document.getElementById("LONG").value = position.coords.longitude;
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+function addRow() {
+    const tbody = document.querySelector('#sgaTable tbody');
+    const rowCount = tbody.rows.length;
+    const newRow = document.createElement('tr');
+
+    newRow.innerHTML = `
+        <td>${rowCount + 1}</td>
+        <td><input type="text" name="SGA_WORKING_CONDITIONS_${rowCount}" /></td>
+        <td><input type="text" name="SGA_PRODUCT_TYPE_${rowCount}" /></td>
+        <td><input type="text" name="SGA_SERIAL_NO_${rowCount}" /></td>
+        <td><input type="text" name="SGA_ASSEST_TAG_NO_${rowCount}" /></td>
+        <td><button type="button" onclick="removeRow(this)">Delete</button></td>
+    `;
+
+    tbody.appendChild(newRow);
+    updateRowNumbers();
+}
+
+function removeRow(button) {
+    const row = button.closest('tr');
+    row.remove();
+    updateRowNumbers();
+}
+
+function updateRowNumbers() {
+    const tbody = document.querySelector('#sgaTable tbody');
+    for (let i = 0; i < tbody.rows.length; i++) {
+        tbody.rows[i].cells[0].textContent = i + 1;
+        // Also update input names with correct indices
+        tbody.rows[i].querySelectorAll('input').forEach((input) => {
+            const baseName = input.name.split('_').slice(0, -1).join('_');
+            input.name = baseName + '_' + i;
+        });
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Outlet Survey</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='outlet_survey.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+		integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <style>
+            @media(max-width:768px){
+                .table-responsive {
+                overflow-y: scroll;
+                display: block;
+                overflow-x: scroll;
+                height: 400px;
+                position: relative;}
+            }
+        </style>
+</head>
+<body>
+
+    
+	<div class="dashboard">
+		<!-- Sidebar -->
+		<aside class="sidebar" id="sidebar">
+			<button id="closeBtn" aria-label="Close Menu">&times;</button>
+			<img src="{{ url_for('static', filename='slmg-logo-white.png') }}" alt="SLMG Logo" title="SLMG"
+				style="width:100%;" />
+			<a href="{{ url_for('user_dashboard') }}">Dashboard</a>
+			<a class="active" href="{{ url_for('outlet_survey') }}">Outlet Survey</a>
+			<a href="{{ url_for('complete_survey') }}">All Completed</a>
+			<a href="{{ url_for('new_complete_outlet') }}">New Complete Outlet List</a>
+			<a href="{{ url_for('logout') }}">Logout</a>
+			<div class="side-footer-img">
+				<img src="{{ url_for('static', filename='bottle-logo.webp') }}" alt="SLMG Logo" title="SLMG" />
+			</div>
+		</aside>
+
+
+		<!-- Overlay -->
+		<div class="overlay" id="overlay"></div>
+		<section class="outer-container">
+			<!-- Main Content -->
+			<main class="main-content">
+				<!-- Topbar -->
+				<header class="topbar">
+					<!-- Welcome Banner -->
+					<div class="content">
+						<h1>Welcome, {{ user.EMP_NAME }}</h1>
+						<p>Glad to see you again!</p>
+					</div>
+					<!-- Hamburger Icon -->
+					<div class="hamburger" id="hamburger" aria-label="Open Menu" role="button" tabindex="0">
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+
+					<div class="user-info">
+						<!-- <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="user-icon" /> -->
+						<span class="user-icon"><i class="fa fa-user" aria-hidden="true"></i></span>
+						<div class="user-content">
+							<strong>{{ user.EMP_NAME }}</strong><br />
+							<small>{{ user.EMAIL_ID }}</small>
+						</div>
+					</div>
+				</header>
+
+				 <div class="container">
+                    <!-- <img src="{{ url_for('static', filename='LOGO.webp') }}" width="150" />
+                    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+                    <h2>Outlet Survey - Change Distributor</h2> -->
+
+                    <!-- Search bar -->
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by Outlet Name, Code, or Address..." class="search-box">
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="messages">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                    <div class="table-responsive">
+                        <table class="modern-table" id="outletTable">
+                        <thead>
+                            <tr>
+                                <th>Outlet Code</th>
+                                <th>Outlet Name</th>
+                                <th>Outlet Address</th>
+                                <th>Current Distributor</th>
+                                <th>Change Distributor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                            <tr>
+                                <td>{{ row.OUTLET_CODE }}</td>
+                                <td>{{ row.OUTLET_NAME }}</td>
+                                <td>{{ row.OUTLET_ADDRESS }}</td>
+                                <td>{{ row.DISTRIBUTOR_CODE }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('change_distributor') }}">
+                                        <input type="hidden" name="OUTLET_CODE" value="{{ row.OUTLET_CODE }}">
+                                        <select name="DISTRIBUTOR_CODE" required class="select-box">
+                                        <option value="">Select Distributor</option>
+                                        {% for code, name in distributors %}
+                                            <option value="{{ code }}" {% if code == row.DISTRIBUTOR_CODE %}selected{% endif %}>
+                                                {{ code }} - {{ name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                        <button type="submit" class="btn-update">Update</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                    
+                 <!-- Pagination Controls -->
+                 <div class="pagination">
+                    {% if page > 1 %}
+                        <a href="{{ url_for('change_distributor', page=page-1) }}">&laquo; Prev</a>
+                    {% endif %}
+
+                    {% if start_page > 1 %}
+                        <a href="{{ url_for('change_distributor', page=1) }}">1</a>
+                        {% if start_page > 2 %}
+                            <span class="dots">...</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% for p in range(start_page, end_page + 1) %}
+                        <a href="{{ url_for('change_distributor', page=p) }}" class="{% if p == page %}active{% endif %}">
+                            {{ p }}
+                        </a>
+                    {% endfor %}
+
+                    {% if end_page < total_pages %}
+                        {% if end_page < total_pages - 1 %}
+                            <span class="dots">...</span>
+                        {% endif %}
+                        <a href="{{ url_for('change_distributor', page=total_pages) }}">{{ total_pages }}</a>
+                    {% endif %}
+
+                    {% if page < total_pages %}
+                        <a href="{{ url_for('change_distributor', page=page+1) }}">Next &raquo;</a>
+                    {% endif %}
+                </div>
+
+
+                </div>
+
+			</main>
+		</section>
+	</div>
+
+
+   
+
+    <!-- JavaScript to filter table -->
+    <script>
+        
+    function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById("outletTable");
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) {
+            let visible = false;
+            const td = tr[i].getElementsByTagName("td");
+
+            for (let j = 0; j < 4; j++) { // Check first 4 columns (ID, code, name, address)
+                if (td[j] && td[j].innerText.toLowerCase().includes(filter)) {
+                    visible = true;
+                    break;
+                }
+            }
+
+            tr[i].style.display = visible ? "" : "none";
+        }
+    }
+    </script>
+    
+	<script>
+		const hamburger = document.getElementById('hamburger');
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('overlay');
+		const closeBtn = document.getElementById('closeBtn');
+
+		function openSidebar() {
+			sidebar.classList.add('show');
+			overlay.classList.add('show');
+		}
+
+		function closeSidebar() {
+			sidebar.classList.remove('show');
+			overlay.classList.remove('show');
+		}
+
+		hamburger.addEventListener('click', openSidebar);
+		closeBtn.addEventListener('click', closeSidebar);
+		overlay.addEventListener('click', closeSidebar);
+
+		// Keyboard accessibility for hamburger
+		hamburger.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				openSidebar();
+			}
+		});
+
+		// Keyboard accessibility for close button
+		closeBtn.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				closeSidebar();
+			}
+		});
+	</script>
+
+
+</body>
+</html>
