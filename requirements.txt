@@ -8,10 +8,14 @@ reportlab.lib.pagesizes
 reportlab.lib
 reportlab.lib.style
 reportlab.platypus
-SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+SimpleDocTemplate
+Paragraph
+Spacer
+Table
+TableStyle
 re
 colors
 io
 os
 csv
-import datetime
+datetime
